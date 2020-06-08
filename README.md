@@ -116,4 +116,50 @@ The above example would produce 5 pairs of Kubernetes manifest files (each pair 
 * deployment_stage.yml, configMap_stage.yml - **stage** 
 * deployment_prod.yml, configMap_prod.yml - **prod**
 
+## Usage for Kubernetes Manifests generation:
+```
+<plugin>
+    <groupId>com.github.saiprasadkrishnamurthy</groupId>
+    <artifactId>springboot-manifest-maven-plugin</artifactId>
+    <version>1.1</version>
+    <executions>
+        <execution>
+            <id>generate-k8s-manifests</id>
+            <goals>
+                <goal>generate-k8s-manifests</goal>
+            </goals>
+        <configuration>
+            <dockerImageNamespace>saiprasadkrishnamurthy</dockerImageNamespace>
+            <deploymentYmlTemplateFile>deployment/deployment.yml</deploymentYmlTemplateFile>
+            <configMapYmlTemplateFile>deployment/configMap.yml</configMapYmlTemplateFile>
+            <skip>false</skip> <!-- Optional default false -->
+            <outputDir>target/manifests/k8s</outputDir> <!-- Optional, defaults to target/manifests/k8s -->
+        </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+## Usage for GIT Manifests generation:
+```
+<plugin>
+    <groupId>com.github.saiprasadkrishnamurthy</groupId>
+    <artifactId>springboot-manifest-maven-plugin</artifactId>
+    <version>1.1</version>
+    <executions>
+        <execution>
+            <id>generate-git-manifests</id>
+            <goals>
+                <goal>generate-git-manifests</goal>
+            </goals>
+        <configuration>
+            <ticketPatterns>SPR-*,ABC-*</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system --> 
+            <skip>false</skip> <!-- Optional default false-->
+            <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
+        </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
  

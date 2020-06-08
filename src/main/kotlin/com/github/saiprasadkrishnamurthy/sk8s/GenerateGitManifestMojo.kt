@@ -22,7 +22,7 @@ class GenerateGitManifestsMojo : AbstractMojo() {
     @Parameter(property = "skip")
     private var skip: Boolean = false
 
-    @Parameter(property = "outputDir", defaultValue = "target/manifests")
+    @Parameter(property = "outputDir", defaultValue = "target/manifests/git")
     private lateinit var outputDir: String
 
     @Parameter(property = "ticketPatterns", defaultValue = "")

@@ -31,11 +31,8 @@ class GenerateK8sManifestsMojo : AbstractMojo() {
     @Parameter(property = "configMapYmlTemplateFile")
     private lateinit var configMapYmlTemplateFile: String
 
-    @Parameter(property = "outputDir", defaultValue = "target/k8s")
+    @Parameter(property = "outputDir", defaultValue = "target/manifests/k8s")
     private lateinit var outputDir: String
-
-    @Parameter(property = "ticketPatterns", defaultValue = "")
-    private lateinit var ticketPatterns: String
 
     @Throws(MojoExecutionException::class, MojoFailureException::class)
     override fun execute() {
