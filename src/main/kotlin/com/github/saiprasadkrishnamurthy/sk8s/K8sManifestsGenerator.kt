@@ -1,6 +1,5 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.w3c.dom.NodeList
 import org.xml.sax.InputSource
 import java.io.File
@@ -81,43 +80,6 @@ class K8sManifestsGenerator {
             configMapTemplate = configMapTemplate.replace("\${properties}", properties)
             configMapTemplate = configMapTemplate.replace("\${configMapTemplateName}", pc.normalisedProps["configMapTemplateName"].toString())
             Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, "configMap$profile.yml"), configMapTemplate, Charset.defaultCharset())
-        }
-
-        if (generateK8sManifestsRequest.generateVersionHistory) {
-            val historyCommand = "git log --oneline --graph --decorate --first-parent"
-            val logs = historyCommand.runCommand(File(generateK8sManifestsRequest.baseDir)).toString().split("\n")
-            val versionMetadata = logs
-                    .filter { it.isNotEmpty() }
-                    .map { it.split(" ")[1] }
-                    .map { sha ->
-                        val entries = "git show --pretty= --name-status $sha"
-                                .runCommand(File(generateK8sManifestsRequest.baseDir)).toString()
-                                .split("\n")
-                                .filter { it.isNotEmpty() }
-
-                        val details = "git show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
-                                .runCommand(File(generateK8sManifestsRequest.baseDir)).toString()
-                                .split(GIT_LOG_ENTRIES_DELIMITER)
-                        val author = details[0]
-                        val timestamp = details[1].toLong()
-                        val authorName = details[2]
-                        val message = details[3]
-
-                        val tickets = generateK8sManifestsRequest.ticketPatterns.flatMap {
-                            extractVariableNames(message, Pattern.compile(it))
-                        }.map { it.trim() }.toList()
-
-                        val mavenVersion = pomVersion(sha, generateK8sManifestsRequest)
-                        VersionMetadata(gitSha = sha,
-                                mavenVersion = mavenVersion,
-                                timestamp = timestamp,
-                                commitMessage = message,
-                                author = "$author ($authorName)",
-                                entries = entries,
-                                tickets = tickets.distinct())
-                    }
-            val json = jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(versionMetadata)
-            Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, "versionInfo.json"), json)
         }
     }
 

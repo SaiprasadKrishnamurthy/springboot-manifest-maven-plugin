@@ -12,8 +12,10 @@ data class GenerateK8sManifestsRequest(val artifactId: String,
                                        val deploymentYmlTemplateFile: String,
                                        val configMapYmlTemplateFile: String,
                                        val outputDir: String,
+                                       val baseDir: String = System.getProperty("user.dir"))
+
+data class GenerateGitManifestsRequest(val outputDir: String,
                                        val baseDir: String = System.getProperty("user.dir"),
-                                       val generateVersionHistory: Boolean = false,
                                        val ticketPatterns: List<String> = listOf())
 
 data class VersionMetadata(val gitSha: String, val mavenVersion: String, val timestamp: Long, val author: String, val commitMessage: String, val tickets: List<String>, val entries: List<String>)

@@ -54,7 +54,6 @@ class GenerateK8sManifestsMojo : AbstractMojo() {
                         version = version,
                         configMapYmlTemplateFile = configMapYmlTemplateFile,
                         deploymentYmlTemplateFile = deploymentYmlTemplateFile,
-                        ticketPatterns = ticketPatterns.split(","),
                         outputDir = outputDir))
             } catch (ex: Exception) {
                 log.error(ex)

@@ -19,8 +19,7 @@ class K8sManifestsGeneratorTest {
                 dockerImageName = "saiprasadkrishnamurthy/demo-service",
                 deploymentYmlTemplateFile = "deployment/service-deployment-template.yml",
                 configMapYmlTemplateFile = "deployment/configmap-template.yml",
-                outputDir = "target",
-                generateVersionHistory = true)
+                outputDir = "target")
         K8sManifestsGenerator.newInstance().generateManifests(req)
 
     }

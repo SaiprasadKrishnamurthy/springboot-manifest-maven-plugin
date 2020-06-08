@@ -7,10 +7,10 @@
 
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.1</version>
     <packaging>maven-plugin</packaging>
 
-    <url>https://github.com/SaiprasadKrishnamurthy/springboot-kubernetes-manifest-maven-plugin</url>
+    <url>https://github.com/SaiprasadKrishnamurthy/springboot-manifest-maven-plugin</url>
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
@@ -266,7 +266,7 @@
     <distributionManagement>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
     </distributionManagement>
     <pluginRepositories>
