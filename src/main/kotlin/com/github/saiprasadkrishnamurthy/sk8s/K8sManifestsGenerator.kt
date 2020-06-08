@@ -1,18 +1,13 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
-import org.w3c.dom.NodeList
-import org.xml.sax.InputSource
 import java.io.File
 import java.io.FileInputStream
-import java.io.StringReader
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
-import javax.xml.xpath.XPathConstants
-import javax.xml.xpath.XPathFactory
 
 /**
  * K8s manifests generator for a springboot application.
@@ -83,19 +78,6 @@ class K8sManifestsGenerator {
         }
     }
 
-    private fun pomVersion(sha: String, generateK8sManifestsRequest: GenerateK8sManifestsRequest): String {
-        return try {
-            val pomContents = "git show $sha:pom.xml".runCommand(File(generateK8sManifestsRequest.baseDir))
-            val xpFactory = XPathFactory.newInstance()
-            val xPath = xpFactory.newXPath().compile("//*[local-name() = 'version']")
-            val nodeList = xPath.evaluate(InputSource(StringReader(pomContents)), XPathConstants.NODESET) as NodeList
-            if (nodeList.length > 1) nodeList.item(1).textContent else nodeList.item(0).textContent
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            "NA"
-        }
-    }
-
     private fun loadProps(generateK8sManifestsRequest: GenerateK8sManifestsRequest, propsContext: PropertiesContext) {
         loadDefaultScopedProps(generateK8sManifestsRequest, propsContext)
         propsContext.props.forEach {
@@ -138,7 +120,7 @@ class K8sManifestsGenerator {
     }
 
 
-    fun String.runCommand(
+    private fun String.runCommand(
             workingDir: File = File("."),
             timeoutAmount: Long = 60,
             timeoutUnit: TimeUnit = TimeUnit.SECONDS
