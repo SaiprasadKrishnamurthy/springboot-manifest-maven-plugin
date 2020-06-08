@@ -17,7 +17,6 @@ class K8sManifestsGenerator {
     companion object Factory {
         fun newInstance(): K8sManifestsGenerator = K8sManifestsGenerator()
         private val REGEX_EXTRACT_VARIABLE_NAMES_FROM_TEMPLATE = Pattern.compile("\\$\\{(.*?)\\}")
-        private val GIT_LOG_ENTRIES_DELIMITER = "|||||_|||||"
     }
 
     fun generateManifests(generateK8sManifestsRequest: GenerateK8sManifestsRequest) {
