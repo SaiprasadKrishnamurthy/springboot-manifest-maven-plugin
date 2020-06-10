@@ -8,7 +8,7 @@ class GitManifestsGeneratorTest {
         @BeforeAll
         @JvmStatic
         internal fun setBaseDir() {
-            System.setProperty("user.dir", "/Users/saiprasadkrishnamurthy/new/event-relationships-enrichment-service")
+            System.setProperty("user.dir", ".")
         }
     }
 

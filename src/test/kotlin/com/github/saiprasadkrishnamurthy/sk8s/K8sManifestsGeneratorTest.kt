@@ -8,7 +8,7 @@ class K8sManifestsGeneratorTest {
         @BeforeAll
         @JvmStatic
         internal fun setBaseDir() {
-            System.setProperty("user.dir", "/Users/saiprasadkrishnamurthy/devops/demo-service")
+            System.setProperty("user.dir", ".")
         }
     }
 
