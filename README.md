@@ -163,6 +163,6 @@ The above example would produce 5 pairs of Kubernetes manifest files (each pair 
 ```
 
 The generated GIT Manifests HTML will look like this (which can be bundled into any springboot JAR file).
-<img src="html.png" width=500 height=500 />
+<img src="html.png" width=800 height=500 />
 
  
