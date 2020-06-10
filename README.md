@@ -1,8 +1,33 @@
 ## SPRINGBOOT MANIFEST MAVEN PLUGIN
 
 ### Maven Plugin to generate the following manifest files.
-* Kubernetes Deployment files and Config Map files pairs for every spring profile (application-<XXXX>.properties)
 * Git version tree with the maven version in a JSON and HTML so it can be packaged in the jar file as version metadata.
+* Kubernetes Deployment files and Config Map files pairs for every spring profile (application-<XXXX>.properties)
+
+## Usage for GIT Manifests generation:
+```
+<plugin>
+    <groupId>com.github.saiprasadkrishnamurthy</groupId>
+    <artifactId>springboot-manifest-maven-plugin</artifactId>
+    <version>1.1</version>
+    <executions>
+        <execution>
+            <id>generate-git-manifests</id>
+            <goals>
+                <goal>generate-git-manifests</goal>
+            </goals>
+        <configuration>
+            <ticketPatterns>SPR-*,ABC-*</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system --> 
+            <skip>false</skip> <!-- Optional default false-->
+            <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
+        </configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### The generated GIT Manifests HTML will look like this (which can be bundled into any springboot JAR file).
+<img src="html.png" width=800 height=600 />
 
 ### Kubernetes Manifests.
 Imagine we have the following application properties files in a regular spring boot app.
@@ -139,30 +164,5 @@ The above example would produce 5 pairs of Kubernetes manifest files (each pair 
     </executions>
 </plugin>
 ```
-
-## Usage for GIT Manifests generation:
-```
-<plugin>
-    <groupId>com.github.saiprasadkrishnamurthy</groupId>
-    <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>1.1</version>
-    <executions>
-        <execution>
-            <id>generate-git-manifests</id>
-            <goals>
-                <goal>generate-git-manifests</goal>
-            </goals>
-        <configuration>
-            <ticketPatterns>SPR-*,ABC-*</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system --> 
-            <skip>false</skip> <!-- Optional default false-->
-            <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
-        </configuration>
-        </execution>
-    </executions>
-</plugin>
-```
-
-### The generated GIT Manifests HTML will look like this (which can be bundled into any springboot JAR file).
-<img src="html.png" width=800 height=600 />
 
  
