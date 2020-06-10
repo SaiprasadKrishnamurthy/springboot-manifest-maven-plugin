@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${configMapTemplateName}
+  namespace: default
+data:
+${properties}
+

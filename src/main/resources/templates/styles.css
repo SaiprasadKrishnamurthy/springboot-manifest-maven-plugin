@@ -1,0 +1,41 @@
+details {
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    padding: .5em .5em 0;
+}
+
+summary {
+    font-weight: bold;
+    margin: -.5em -.5em 0;
+    padding: .5em;
+}
+
+.title {
+    font-weight: bold;
+}
+.listTitle {
+    color: #000;
+    word-break: break-all;
+}
+.svgDisplay {
+    width: 8em;
+    height: 4em;
+    margin-left: auto;
+    display: flex;
+    justify-content: flex-end
+}
+.canvasDiv{
+    display: flex; 
+}
+.commit{
+    color: green;
+}
+.message{
+    color:#0000ffb5;
+}
+.author{
+    color: #800080a8;
+}
+.date{
+    color: #fe9a12;
+}

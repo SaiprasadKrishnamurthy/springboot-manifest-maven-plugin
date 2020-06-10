@@ -41,7 +41,8 @@ class GenerateGitManifestsMojo : AbstractMojo() {
                 log.info(String.format(" Generating GIT Manifest Files for:  %s:%s:%s", groupId, artifactId, version))
                 GitManifestsGenerator.newInstance().generateManifests(GenerateGitManifestsRequest(
                         ticketPatterns = ticketPatterns.split(","),
-                        outputDir = outputDir))
+                        outputDir = outputDir,
+                        artifactId = project.artifactId))
             } catch (ex: Exception) {
                 log.error(ex)
                 throw RuntimeException(ex)
