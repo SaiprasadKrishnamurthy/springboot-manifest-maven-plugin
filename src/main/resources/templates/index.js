@@ -182,9 +182,7 @@ const createCommitCharts = (jsonVal) => {
                     labels: labels,
                     datasets: [{
                         data: data,
-                        borderColor: borderColor,
-                        backgroundColor: 'rgba(0, 0, 0, 0)',
-                        borderWidth: 1
+                        backgroundColor: ['red','blue', 'green', 'pink', 'brown', 'yellow', 'purple', 'aqua', 'teal', 'orange']
                     }]
                 },
                 options: {
