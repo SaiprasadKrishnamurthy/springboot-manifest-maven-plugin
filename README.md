@@ -29,6 +29,8 @@
 ### The generated GIT Manifests HTML will look like this (which can be bundled into any springboot JAR file).
 <img src="html.png" width=800 height=600 />
 
+Thanks to Nick (https://github.com/nickx720) for his contribution towards the UI :-).
+
 ### Kubernetes Manifests.
 Imagine we have the following application properties files in a regular spring boot app.
 ```
