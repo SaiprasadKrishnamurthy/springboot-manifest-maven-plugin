@@ -24,7 +24,6 @@ import javax.xml.xpath.XPathFactory
 class GitManifestsGenerator {
     companion object Factory {
         fun newInstance(): GitManifestsGenerator = GitManifestsGenerator()
-        private val REGEX_EXTRACT_VARIABLE_NAMES_FROM_TEMPLATE = Pattern.compile("\\$\\{(.*?)\\}")
         private val GIT_LOG_ENTRIES_DELIMITER = "|||||_|||||"
     }
 
@@ -61,8 +60,8 @@ class GitManifestsGenerator {
                     VersionMetadata(gitSha = sha,
                             mavenVersion = mavenVersion,
                             timestamp = timestamp,
-                            commitMessage = message.replace("\"","").replace("\n", ""),
-                            author = "$author ($authorName)".replace("\"",""),
+                            commitMessage = message.replace("\"", "").replace("\n", ""),
+                            author = "$author ($authorName)".replace("\"", ""),
                             entries = entries,
                             tickets = tickets.distinct(),
                             day = sdf.format(date))
@@ -86,7 +85,13 @@ class GitManifestsGenerator {
             val xpFactory = XPathFactory.newInstance()
             val xPath = xpFactory.newXPath().compile("//*[local-name() = 'version']")
             val nodeList = xPath.evaluate(InputSource(StringReader(pomContents)), XPathConstants.NODESET) as NodeList
-            if (nodeList.length > 1) nodeList.item(1).textContent else nodeList.item(0).textContent
+            if (nodeList.length > 0) {
+                var node = nodeList.item(0)
+                if (node.parentNode.localName == "parent") {
+                    node = nodeList.item(1)
+                }
+                node.textContent
+            } else ""
         } catch (ex: Exception) {
             ""
         }
