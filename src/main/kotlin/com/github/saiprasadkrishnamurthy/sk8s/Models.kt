@@ -4,6 +4,8 @@ package com.github.saiprasadkrishnamurthy.sk8s
  * Various model objects.
  * @author Sai.
  */
+data class Baz(val commitId: String, val file: String, val from: String, val to: String, val changeType: String)
+
 data class PropertiesContext(val profile: String, val props: MutableMap<Any, Any> = mutableMapOf(), val normalisedProps: MutableMap<Any, Any> = mutableMapOf(), val file: String)
 
 data class GenerateK8sManifestsRequest(val artifactId: String,
@@ -28,5 +30,5 @@ data class VersionMetadata(val gitSha: String,
                            val entries: List<String>,
                            val day: String)
 
-data class Diff(val commitId: String, val file: String, val from: String, val to: String, val changeType: String)
+data class Diff(val commitId: String, val file: String, val from: String, val to: String, val changeType: String, val author: String, val timestamp: Long)
 
