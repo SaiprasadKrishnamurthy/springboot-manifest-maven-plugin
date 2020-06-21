@@ -210,6 +210,24 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.github.saiprasadkrishnamurthy</groupId>
+                <artifactId>springboot-manifest-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>generate-git-manifests</id>
+                        <goals>
+                            <goal>generate-git-manifests</goal>
+                        </goals>
+                        <configuration>
+                            <ticketPatterns>SPR-[0-9]+</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system -->
+                            <skip>false</skip> <!-- Optional default false-->
+                            <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
