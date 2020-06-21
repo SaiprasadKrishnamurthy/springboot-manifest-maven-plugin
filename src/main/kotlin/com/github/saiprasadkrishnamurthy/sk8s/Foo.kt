@@ -5,7 +5,6 @@ import java.io.FileInputStream
 
 
 object Foo {
-    data class Diff(val fileName: String, val from: String, val to: String, val changeType: String)
 
     @JvmStatic
     fun main(args: Array<String>) {
