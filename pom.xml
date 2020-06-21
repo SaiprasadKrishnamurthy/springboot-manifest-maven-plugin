@@ -7,7 +7,7 @@
 
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>1.4</version>
+    <version>1.5-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
     <url>https://github.com/SaiprasadKrishnamurthy/springboot-manifest-maven-plugin</url>
@@ -230,6 +230,7 @@
                             <ticketPatterns>SPR-[0-9]+</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system -->
                             <skip>false</skip> <!-- Optional default false-->
                             <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
+                            <maxNoOfRevisionsForDetailedDump>50</maxNoOfRevisionsForDetailedDump>
                         </configuration>
                     </execution>
                 </executions>

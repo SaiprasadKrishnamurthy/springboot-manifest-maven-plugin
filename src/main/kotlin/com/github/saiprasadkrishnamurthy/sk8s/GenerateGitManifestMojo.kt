@@ -28,6 +28,9 @@ class GenerateGitManifestsMojo : AbstractMojo() {
     @Parameter(property = "ticketPatterns", defaultValue = "")
     private lateinit var ticketPatterns: String
 
+    @Parameter(property = "maxNoOfRevisionsForDetailedDump", defaultValue = "0")
+    private lateinit var maxNoOfRevisionsForDetailedDump: String
+
     @Throws(MojoExecutionException::class, MojoFailureException::class)
     override fun execute() {
         if (skip) {
@@ -42,7 +45,8 @@ class GenerateGitManifestsMojo : AbstractMojo() {
                 GitManifestsGenerator.newInstance().generateManifests(GenerateGitManifestsRequest(
                         ticketPatterns = ticketPatterns.split(","),
                         outputDir = outputDir,
-                        artifactId = project.artifactId))
+                        artifactId = project.artifactId,
+                        maxNoOfRevisionsForDetailedDump = maxNoOfRevisionsForDetailedDump.toInt()))
             } catch (ex: Exception) {
                 log.error(ex)
                 throw RuntimeException(ex)

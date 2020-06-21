@@ -5,6 +5,7 @@ package com.github.saiprasadkrishnamurthy.sk8s
  * @author Sai.
  */
 data class Baz(val file: String, val from: String, val to: String, val changeType: String)
+
 data class Boo(val commitId: String, val file: String, val from: String, val to: String, val changeType: String)
 data class Joo(val commitId: String, val file: String, val from: String, val to: String, val changeType: String)
 
@@ -21,7 +22,8 @@ data class GenerateK8sManifestsRequest(val artifactId: String,
 data class GenerateGitManifestsRequest(val outputDir: String,
                                        val artifactId: String,
                                        val baseDir: String = System.getProperty("user.dir"),
-                                       val ticketPatterns: List<String> = listOf())
+                                       val ticketPatterns: List<String> = listOf(),
+                                       val maxNoOfRevisionsForDetailedDump: Int = 0)
 
 data class VersionMetadata(val gitSha: String,
                            val mavenVersion: String,
@@ -32,5 +34,5 @@ data class VersionMetadata(val gitSha: String,
                            val entries: List<String>,
                            val day: String)
 
-data class Diff(val commitId: String, val file: String, val from: String, val to: String, val changeType: String, val author: String, val timestamp: Long)
+data class DiffLog(val mavenVersion: String, val commitId: String, val file: String, val from: String, val to: String, val changeType: String, val author: String, val timestamp: Long, val tickets: String)
 

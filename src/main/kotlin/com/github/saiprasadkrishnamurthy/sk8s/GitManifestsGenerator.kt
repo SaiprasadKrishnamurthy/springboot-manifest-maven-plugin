@@ -1,6 +1,8 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.reflectoring.diffparser.api.UnifiedDiffParser
+import io.reflectoring.diffparser.api.model.Diff
 import org.apache.commons.io.IOUtils
 import org.w3c.dom.NodeList
 import org.xml.sax.InputSource
@@ -13,6 +15,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+import java.util.stream.Collectors.toList
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 
@@ -89,6 +92,9 @@ class GitManifestsGenerator {
         Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
         Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
         Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "styles.css"), css, Charset.defaultCharset())
+        if (generateGitManifestsRequest.maxNoOfRevisionsForDetailedDump > 0) {
+            databaseDump(generateGitManifestsRequest, versionMetadata)
+        }
     }
 
     private fun pomVersion(sha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): String {
@@ -108,6 +114,41 @@ class GitManifestsGenerator {
             ""
         }
     }
+
+    private fun databaseDump(generateGitManifestsRequest: GenerateGitManifestsRequest, versionMetadata: List<VersionMetadata>) {
+        val versions = if (generateGitManifestsRequest.maxNoOfRevisionsForDetailedDump >= versionMetadata.size) versionMetadata else versionMetadata.take(generateGitManifestsRequest.maxNoOfRevisionsForDetailedDump)
+        println(" Detailed Dump Requested for Git Revisions: ${versions.map { it.gitSha }}")
+        val diffLogs = versions.parallelStream()
+                .flatMap { vm ->
+                    val cmd = "git show ${vm.gitSha} --pretty=fuller"
+                    val output = cmd.runCommand(File(generateGitManifestsRequest.baseDir)).toString()
+                    diffLogs(output, vm).stream()
+                }.collect(toList())
+        Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "dump.json"), jacksonObjectMapper().writeValueAsString(diffLogs))
+    }
+
+    private fun diffLogs(output: String, versionMetadata: VersionMetadata): List<DiffLog> {
+        val parser = UnifiedDiffParser()
+        val diff = parser.parse(output.toByteArray(Charset.defaultCharset()))
+        return diff.map { diff ->
+            val fileName = (diff.fromFileName + diff.toFileName).replace("/dev/null", "").substringAfter("/")
+            val from = contents(diff, "FROM")
+            val to = contents(diff, "TO")
+            DiffLog(mavenVersion = versionMetadata.mavenVersion,
+                    commitId = versionMetadata.gitSha,
+                    file = fileName,
+                    from = from,
+                    to = to,
+                    changeType = "",
+                    author = versionMetadata.author,
+                    timestamp = 1,
+                    tickets = versionMetadata.tickets.joinToString(",")
+            )
+        }
+    }
+
+    private fun contents(diff: Diff, lineType: String) = diff.latestHunk.lines
+            .filter { it.lineType.name == lineType }.joinToString("\n") { it.content }
 
     private fun extractVariableNames(value: String, regex: Pattern): Set<String> {
         val matchPattern = regex.matcher(value)
