@@ -1,7 +1,7 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
 /**
- * various model objects.
+ * Various model objects.
  * @author Sai.
  */
 data class PropertiesContext(val profile: String, val props: MutableMap<Any, Any> = mutableMapOf(), val normalisedProps: MutableMap<Any, Any> = mutableMapOf(), val file: String)
