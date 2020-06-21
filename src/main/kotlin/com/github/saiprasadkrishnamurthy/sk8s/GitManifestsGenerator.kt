@@ -32,7 +32,7 @@ class GitManifestsGenerator {
         val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
         val sdf = SimpleDateFormat("dd/MM/yyyy")
 
-        val versionMetadata = logs
+        var versionMetadata = logs
                 .filter { it.isNotEmpty() }
                 .map { it.split(" ")[1] }
                 .map { sha ->
@@ -66,6 +66,17 @@ class GitManifestsGenerator {
                             tickets = tickets.distinct(),
                             day = sdf.format(date))
                 }.filter { it.mavenVersion != "" }
+
+        if (versionMetadata.isNotEmpty()) {
+            val currentVersion = versionMetadata[0].mavenVersion
+            versionMetadata = versionMetadata.map { v ->
+                if (v.mavenVersion != currentVersion && v.mavenVersion.contains("snapshot", true)) {
+                    v.copy(mavenVersion = v.mavenVersion.replace("-snapshot", "", true))
+                } else {
+                    v
+                }
+            }
+        }
         val json = jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(versionMetadata)
         Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "versionInfo.json"), json)
 
@@ -74,6 +85,7 @@ class GitManifestsGenerator {
         var css = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/styles.css"), Charset.defaultCharset())
         var html = htmlTemplate.replace("{{json}}", json)
         html = html.replace("{{artifactId}}", generateGitManifestsRequest.artifactId)
+        html = html.replace("{{version}}", if (versionMetadata.isNotEmpty()) versionMetadata[0].mavenVersion else "")
         Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
         Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
         Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "styles.css"), css, Charset.defaultCharset())
@@ -101,7 +113,7 @@ class GitManifestsGenerator {
         val matchPattern = regex.matcher(value)
         val vars = HashSet<String>()
         while (matchPattern.find()) {
-            vars.add(matchPattern.group(1))
+            vars.add(matchPattern.group(0))
         }
         return vars
     }
