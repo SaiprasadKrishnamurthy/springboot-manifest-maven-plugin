@@ -7,7 +7,7 @@
 
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5</version>
     <packaging>maven-plugin</packaging>
 
     <url>https://github.com/SaiprasadKrishnamurthy/springboot-manifest-maven-plugin</url>
@@ -216,25 +216,25 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>com.github.saiprasadkrishnamurthy</groupId>
-                <artifactId>springboot-manifest-maven-plugin</artifactId>
-                <version>1.4</version>
-                <executions>
-                    <execution>
-                        <id>generate-git-manifests</id>
-                        <goals>
-                            <goal>generate-git-manifests</goal>
-                        </goals>
-                        <configuration>
-                            <ticketPatterns>SPR-[0-9]+</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system -->
-                            <skip>false</skip> <!-- Optional default false-->
-                            <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
-                            <maxNoOfRevisionsForDetailedDump>50</maxNoOfRevisionsForDetailedDump>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>com.github.saiprasadkrishnamurthy</groupId>-->
+<!--                <artifactId>springboot-manifest-maven-plugin</artifactId>-->
+<!--                <version>1.4</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>generate-git-manifests</id>-->
+<!--                        <goals>-->
+<!--                            <goal>generate-git-manifests</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <ticketPatterns>SPR-[0-9]+</ticketPatterns> &lt;!&ndash; Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system &ndash;&gt;-->
+<!--                            <skip>false</skip> &lt;!&ndash; Optional default false&ndash;&gt;-->
+<!--                            <outputDir>target/manifests/git</outputDir> &lt;!&ndash; Optional, defaults to target/manifests/git &ndash;&gt;-->
+<!--                            <maxNoOfRevisionsForDetailedDump>50</maxNoOfRevisionsForDetailedDump>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
     <profiles>
