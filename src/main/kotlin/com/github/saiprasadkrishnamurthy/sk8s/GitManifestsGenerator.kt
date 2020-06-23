@@ -1,7 +1,6 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import io.reflectoring.diffparser.api.UnifiedDiffParser
 import io.reflectoring.diffparser.api.model.Diff
 import org.apache.commons.io.IOUtils
 import org.w3c.dom.NodeList
@@ -15,7 +14,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
-import java.util.stream.Collectors.toList
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 
@@ -31,69 +29,79 @@ class GitManifestsGenerator {
     }
 
     fun generateManifests(generateGitManifestsRequest: GenerateGitManifestsRequest) {
-        val historyCommand = "git log --oneline --graph --decorate --first-parent"
-        val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
-        val sdf = SimpleDateFormat("dd/MM/yyyy")
+        val checkBranchCommand = "git branch"
+        val currBranch = checkBranchCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().replace("*", "").trim()
+        val shouldRun = generateGitManifestsRequest.executeOnBranches.filter { extractVariableNames(currBranch, Pattern.compile(it)).filter { it.trim().isNotBlank() }.isNotEmpty() }.isNotEmpty()
+        if (shouldRun) {
+            val historyCommand = "git log --oneline --decorate"
+            val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
+            val sdf = SimpleDateFormat("dd/MM/yyyy")
 
-        var versionMetadata = logs
-                .filter { it.isNotEmpty() }
-                .map { it.split(" ")[1] }
-                .map { sha ->
-                    val entries = "git show --pretty= --name-status $sha"
-                            .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
-                            .split("\n")
-                            .filter { it.isNotEmpty() }
+            var versionMetadata = logs
+                    .asSequence()
+                    .take(n = generateGitManifestsRequest.maxRevisions)
+                    .filter { it.isNotEmpty() }
+                    .map { it.split(" ")[0] }
+                    .map { sha ->
+                        val entries = "git show --pretty= --name-status $sha"
+                                .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
+                                .split("\n")
+                                .filter { it.isNotEmpty() }
 
-                    val details = "git show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
-                            .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
-                            .split(GIT_LOG_ENTRIES_DELIMITER)
-                    val author = details[0]
-                    val timestamp = details[1].toLong()
-                    val authorName = details[2]
-                    val message = details[3]
+                        val details = "git show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
+                                .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
+                                .split(GIT_LOG_ENTRIES_DELIMITER)
+                        val author = details[0]
+                        val timestamp = details[1].toLong()
+                        val authorName = details[2]
+                        val message = details[3]
 
-                    val tickets = generateGitManifestsRequest.ticketPatterns.flatMap {
-                        extractVariableNames(message, Pattern.compile(it))
-                    }.map { it.trim() }.toList()
+                        val tickets = generateGitManifestsRequest.ticketPatterns.flatMap {
+                            extractVariableNames(message, Pattern.compile(it))
+                        }.map { it.trim() }.toList()
 
-                    val mavenVersion = pomVersion(sha, generateGitManifestsRequest)
+                        val mavenVersion = pomVersion(sha, generateGitManifestsRequest)
 
-                    val date = Date()
-                    date.time = timestamp * 1000
-                    VersionMetadata(gitSha = sha,
-                            mavenVersion = mavenVersion,
-                            timestamp = timestamp,
-                            commitMessage = message.replace("\"", "").replace("\n", ""),
-                            author = "$author ($authorName)".replace("\"", ""),
-                            entries = entries,
-                            tickets = tickets.distinct(),
-                            day = sdf.format(date))
-                }.filter { it.mavenVersion != "" }
+                        val date = Date()
+                        date.time = timestamp * 1000
+                        VersionMetadata(gitSha = sha,
+                                mavenVersion = mavenVersion,
+                                timestamp = timestamp,
+                                commitMessage = message.replace("\"", "").replace("\n", ""),
+                                author = "$author ($authorName)".replace("\"", ""),
+                                entries = entries,
+                                tickets = tickets.distinct(),
+                                day = sdf.format(date))
+                    }.filter { it.mavenVersion != "" }
+                    .toList()
 
-        if (versionMetadata.isNotEmpty()) {
-            val currentVersion = versionMetadata[0].mavenVersion
-            versionMetadata = versionMetadata.map { v ->
-                if (v.mavenVersion != currentVersion && v.mavenVersion.contains("snapshot", true)) {
-                    v.copy(mavenVersion = v.mavenVersion.replace("-snapshot", "", true))
-                } else {
-                    v
+            if (versionMetadata.isNotEmpty()) {
+                val currentVersion = versionMetadata[0].mavenVersion
+                versionMetadata = versionMetadata.map { v ->
+                    if (v.mavenVersion != currentVersion && v.mavenVersion.contains("snapshot", true)) {
+                        v.copy(mavenVersion = v.mavenVersion.replace("-snapshot", "", true))
+                    } else {
+                        v
+                    }
                 }
             }
-        }
-        val json = jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(versionMetadata)
-        Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "versionInfo.json"), json)
+            val json = jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(versionMetadata)
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "versionInfo.json"), json)
 
-        var htmlTemplate = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/index.html"), Charset.defaultCharset())
-        var js = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/index.js"), Charset.defaultCharset())
-        var css = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/styles.css"), Charset.defaultCharset())
-        var html = htmlTemplate.replace("{{json}}", json)
-        html = html.replace("{{artifactId}}", generateGitManifestsRequest.artifactId)
-        html = html.replace("{{version}}", if (versionMetadata.isNotEmpty()) versionMetadata[0].mavenVersion else "")
-        Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
-        Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
-        Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "styles.css"), css, Charset.defaultCharset())
-        if (generateGitManifestsRequest.maxNoOfRevisionsForDetailedDump > 0) {
-            databaseDump(generateGitManifestsRequest, versionMetadata)
+            var htmlTemplate = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/index.html"), Charset.defaultCharset())
+            var js = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/index.js"), Charset.defaultCharset())
+            var css = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/styles.css"), Charset.defaultCharset())
+            var html = htmlTemplate.replace("{{json}}", json)
+            html = html.replace("{{artifactId}}", generateGitManifestsRequest.artifactId)
+            html = html.replace("{{version}}", if (versionMetadata.isNotEmpty()) versionMetadata[0].mavenVersion else "")
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "styles.css"), css, Charset.defaultCharset())
+            if (generateGitManifestsRequest.maxNoOfMavenVersionsForDiffsDump > 0) {
+                databaseDump(generateGitManifestsRequest, versionMetadata)
+            }
+        } else {
+            println(" Not running as the plugin is not configured to run on the branch:  $currBranch")
         }
     }
 
@@ -116,34 +124,48 @@ class GitManifestsGenerator {
     }
 
     private fun databaseDump(generateGitManifestsRequest: GenerateGitManifestsRequest, versionMetadata: List<VersionMetadata>) {
-        val versions = if (generateGitManifestsRequest.maxNoOfRevisionsForDetailedDump >= versionMetadata.size) versionMetadata else versionMetadata.take(generateGitManifestsRequest.maxNoOfRevisionsForDetailedDump)
-        println(" Detailed Dump Requested for Git Revisions: ${versions.map { it.gitSha }}")
-        val diffLogs = versions.parallelStream()
-                .flatMap { vm ->
-                    val cmd = "git show ${vm.gitSha} --pretty=fuller"
-                    val output = cmd.runCommand(File(generateGitManifestsRequest.baseDir)).toString()
-                    diffLogs(output, vm).stream()
-                }.collect(toList())
-        Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "dump.json"), jacksonObjectMapper().writeValueAsString(diffLogs))
+        val mavenVersions = versionMetadata.map { it.mavenVersion }.distinct()
+        println("Found Maven Versions: $mavenVersions")
+        val diffs = mutableListOf<DiffLog>()
+        if (mavenVersions.size > 1) {
+            // N-1 Version diff.
+            val mv = mavenVersions.take(generateGitManifestsRequest.maxNoOfMavenVersionsForDiffsDump)
+            val traversed = mutableSetOf<String>()
+
+            mv.forEach { a ->
+                mv.forEach { b ->
+                    if (a != b && !traversed.contains(listOf(a, b).sorted().joinToString(","))) {
+                        traversed.add(listOf(a, b).sorted().joinToString(","))
+                        val i = versionMetadata.filter { it.mavenVersion == a }
+                        val j = versionMetadata.filter { it.mavenVersion == b }
+                        val lastGitSha = j[0].gitSha
+                        val idx = mavenVersions.indexOf(a)
+                        val mavenVersionCanonicalName = if (idx == 0) "CURRENT" else "CURRENT-$idx"
+                        diffs.addAll(diffs(i, j[0].mavenVersion, mavenVersionCanonicalName, lastGitSha, generateGitManifestsRequest))
+                    }
+                }
+            }
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "diffs.json"), jacksonObjectMapper().writeValueAsString(diffs))
+        }
     }
 
-    private fun diffLogs(output: String, versionMetadata: VersionMetadata): List<DiffLog> {
-        val parser = UnifiedDiffParser()
-        val diff = parser.parse(output.toByteArray(Charset.defaultCharset()))
-        return diff.map { diff ->
-            val fileName = (diff.fromFileName + diff.toFileName).replace("/dev/null", "").substringAfter("/")
-            val from = contents(diff, "FROM")
-            val to = contents(diff, "TO")
-            DiffLog(mavenVersion = versionMetadata.mavenVersion,
-                    commitId = versionMetadata.gitSha,
-                    file = fileName,
-                    from = from,
-                    to = to,
-                    changeType = "",
-                    author = versionMetadata.author,
-                    timestamp = 1,
-                    tickets = versionMetadata.tickets.joinToString(",")
-            )
+    private fun diffs(v: List<VersionMetadata>, prevMavenVersion: String, mavenVersionCanonicalName: String, lastGitSha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): List<DiffLog> {
+        return v.flatMap {
+            it.entries.map { f ->
+                val file = f.split("\\s".toRegex()).filter { it.trim().isNotBlank() }[1]
+                val cmd = "git diff ${it.gitSha} $lastGitSha $file"
+                val d = cmd.runCommand(File(generateGitManifestsRequest.baseDir)).toString()
+                DiffLog(mavenVersionA = it.mavenVersion,
+                        mavenVersionB = prevMavenVersion,
+                        gitVersionA = it.gitSha,
+                        gitVersionB = lastGitSha,
+                        file = file,
+                        diff = d,
+                        author = it.author,
+                        timestamp = it.timestamp,
+                        commitMessage = it.commitMessage,
+                        mavenVersionCanonicalName = mavenVersionCanonicalName)
+            }
         }
     }
 

@@ -28,8 +28,14 @@ class GenerateGitManifestsMojo : AbstractMojo() {
     @Parameter(property = "ticketPatterns", defaultValue = "")
     private lateinit var ticketPatterns: String
 
-    @Parameter(property = "maxNoOfRevisionsForDetailedDump", defaultValue = "0")
-    private lateinit var maxNoOfRevisionsForDetailedDump: String
+    @Parameter(property = "maxNoOfMavenVersionsForDiffsDump", defaultValue = "0")
+    private lateinit var maxNoOfMavenVersionsForDiffsDump: String
+
+    @Parameter(property = "maxRevisions", defaultValue = "100")
+    private lateinit var maxRevisions: String
+
+    @Parameter(property = "runOnBranchPatterns", defaultValue = "master")
+    private lateinit var runOnBranchPatterns: String
 
     @Throws(MojoExecutionException::class, MojoFailureException::class)
     override fun execute() {
@@ -46,7 +52,10 @@ class GenerateGitManifestsMojo : AbstractMojo() {
                         ticketPatterns = ticketPatterns.split(","),
                         outputDir = outputDir,
                         artifactId = project.artifactId,
-                        maxNoOfRevisionsForDetailedDump = maxNoOfRevisionsForDetailedDump.toInt()))
+                        maxRevisions = maxRevisions.toInt(),
+                        maxNoOfMavenVersionsForDiffsDump = maxNoOfMavenVersionsForDiffsDump.toInt(),
+                        executeOnBranches = runOnBranchPatterns.split(",")
+                ))
             } catch (ex: Exception) {
                 log.error(ex)
                 throw RuntimeException(ex)

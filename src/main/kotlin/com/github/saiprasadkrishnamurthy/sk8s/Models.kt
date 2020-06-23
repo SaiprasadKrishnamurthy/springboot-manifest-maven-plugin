@@ -4,10 +4,6 @@ package com.github.saiprasadkrishnamurthy.sk8s
  * Various model objects.
  * @author Sai.
  */
-data class Baz(val file: String, val from: String, val to: String, val changeType: String)
-
-data class Boo(val commitId: String, val file: String, val from: String, val to: String, val changeType: String)
-data class Joo(val commitId: String, val file: String, val from: String, val to: String, val changeType: String)
 
 data class PropertiesContext(val profile: String, val props: MutableMap<Any, Any> = mutableMapOf(), val normalisedProps: MutableMap<Any, Any> = mutableMapOf(), val file: String)
 
@@ -23,7 +19,9 @@ data class GenerateGitManifestsRequest(val outputDir: String,
                                        val artifactId: String,
                                        val baseDir: String = System.getProperty("user.dir"),
                                        val ticketPatterns: List<String> = listOf(),
-                                       val maxNoOfRevisionsForDetailedDump: Int = 0)
+                                       val maxRevisions: Int = 100,
+                                       val maxNoOfMavenVersionsForDiffsDump: Int = 0,
+                                       val executeOnBranches: List<String> = listOf("master"))
 
 data class VersionMetadata(val gitSha: String,
                            val mavenVersion: String,
@@ -34,5 +32,14 @@ data class VersionMetadata(val gitSha: String,
                            val entries: List<String>,
                            val day: String)
 
-data class DiffLog(val mavenVersion: String, val commitId: String, val file: String, val from: String, val to: String, val changeType: String, val author: String, val timestamp: Long, val tickets: String)
+data class DiffLog(val mavenVersionA: String,
+                   val mavenVersionB: String,
+                   val gitVersionA: String,
+                   val gitVersionB: String,
+                   val author: String,
+                   val timestamp: Long,
+                   val file: String,
+                   val diff: String,
+                   val commitMessage: String,
+                   val mavenVersionCanonicalName: String)
 
