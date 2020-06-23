@@ -30,8 +30,14 @@ class GitManifestsGenerator {
 
     fun generateManifests(generateGitManifestsRequest: GenerateGitManifestsRequest) {
         val checkBranchCommand = "git branch"
-        val currBranch = checkBranchCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().replace("*", "").trim()
-        val shouldRun = generateGitManifestsRequest.executeOnBranches.filter { extractVariableNames(currBranch, Pattern.compile(it)).filter { it.trim().isNotBlank() }.isNotEmpty() }.isNotEmpty()
+        val currBranch = checkBranchCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString()
+                .split("\n").filter { it.startsWith("*") }
+                .take(1)[0]
+                .replace("*", "")
+                .trim()
+
+        val shouldRun = generateGitManifestsRequest.executeOnBranches
+                .any { extractVariableNames(currBranch, Pattern.compile(it)).any { it.trim().isNotBlank() } }
         if (shouldRun) {
             val historyCommand = "git log --oneline --decorate"
             val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
@@ -101,7 +107,7 @@ class GitManifestsGenerator {
                 databaseDump(generateGitManifestsRequest, versionMetadata)
             }
         } else {
-            println(" Not running as the plugin is not configured to run on the branch:  $currBranch")
+            println("Not generating the GIT manifests as the plugin is not configured to run on the branch:  $currBranch")
         }
     }
 
