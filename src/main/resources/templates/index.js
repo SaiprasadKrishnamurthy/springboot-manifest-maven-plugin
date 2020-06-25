@@ -14,8 +14,8 @@ const createAccordion = (json) => {
     </span>| <span class="author">${val.author} </span>| <span class="date">${new Date(val.timestamp * 1000).toLocaleString()} </span></summary>
     <div class="row">
     <div class="col s12">
-      <div class="card light-blue darken-1">
-        <div class="card-content white-text">
+      <div class="card blue-grey lighten-5">
+        <div class="card-content black-text">
           <span class="card-title">Commit created on <span>${new Date(val.timestamp * 1000).toLocaleString()}</span></span>
          <div class="row">
          <div class="col s6"><span class="title">Author:</span> ${val.author}</div>
@@ -46,6 +46,25 @@ const createAccordion = (json) => {
   </li>`).join('')
 }
 
+const outputFile = (value) => {
+    return value.map(element => `
+    <h5 class="header">File: ${element.file}</h5>
+    <div class="card horizontal">
+      <div class="card-stacked">
+        <div class="card-content">
+          <div class="row">
+          <div class="col s6"><p>Maven version difference: ${element.mavenVersionA} - ${element.mavenVersionB}</p></div>
+          <div class="col s6"><p>GIT version difference ${element.gitVersionA} - ${element.gitVersionB}</p></div>
+          <div class="col s6"><p>Author ${element.author}</p></div>
+          <div class="col s6"><p>Commit Message ${element.commitMessage}</p></div>
+          <div class="col s6"><p>Commit DateTime ${new Date(element.timestamp * 1000).toLocaleString()}</p></div>
+          
+          </div>
+        </div>
+      </div>
+    </div>`).join("")
+}
+
 const groupBy = (arr, key) => {
     return arr.reduce((iterator, value) => {
         (iterator[value[key]] = iterator[value[key]] || []).push(value);
@@ -60,10 +79,15 @@ const main = () => {
         }
         const elems = document.querySelectorAll('.collapsible');
         const instances = M.Collapsible.init(elems, options);
+        const elemTab = document.querySelectorAll('.tabs');
+        let instance = M.Tabs.init(elemTab, {
+        });
+        autoComplete();
 
     });
     const jsonVal = JSON.parse(document.getElementById('dataJson').firstChild.data);
     createView(jsonVal)
+
 }
 
 const createView = (jsonVal) => {
@@ -182,7 +206,7 @@ const createCommitCharts = (jsonVal) => {
                     labels: labels,
                     datasets: [{
                         data: data,
-                        backgroundColor: ['red','blue', 'green', 'pink', 'brown', 'yellow', 'purple', 'aqua', 'teal', 'orange']
+                        backgroundColor: ['red', 'blue', 'green', 'pink', 'brown', 'yellow', 'purple', 'aqua', 'teal', 'orange']
                     }]
                 },
                 options: {
@@ -196,6 +220,60 @@ const createCommitCharts = (jsonVal) => {
     })
 }
 
+// curried function to handle event bind
+const diffSearch = search => (event) => {
+    event.preventDefault();
+    let elements = document.getElementById('searchForm').elements;
+    let formResults = {};
+    [...elements].forEach(element => element.value !== "" && element.value !== "Search" ? formResults[element.name] = (elem) => elem === element.value : undefined);
+    const diffJson = JSON.parse(document.getElementById('diffJson').firstChild.data);
+    const filterKeys = Object.keys(formResults);
+    let filterResults = diffJson.filter(elem => filterKeys.every(key => formResults[key](elem[key])));
+    let uniqueDisplay = [...new Set(filterResults)];
+    /* console.log(uniqueDisplay); */
+    document.getElementById('dynCard').innerHTML = outputFile(uniqueDisplay);
+    diffGenerator(uniqueDisplay);
+}
+
+const autoComplete = () => {
+    const diffJson = JSON.parse(document.getElementById('diffJson').firstChild.data);
+    generateAutoComplete(diffJson);
+}
+
+const generateAutoComplete = (json) => {
+    console.log(json);
+    const elementAuto = {
+        file: "file-input",
+        author: "author-input",
+        gitVersionA: "gva-input",
+        gitVersionB: "gvb-input",
+        mavenVersionA: "mva-input",
+        mavenVersionB: "mvb-input"
+    }
+    for (let property in elementAuto) {
+        let data = json.reduce((result, item) => {
+            result[item[property]] = null;
+            return result;
+        }, {});
+        M.Autocomplete.init(document.getElementById(elementAuto[property]), {
+            data: data,
+            minLength: 0
+        })
+    }
+}
+
+const diffGenerator = (value) => {
+    let diffHtml = Diff2Html.html(value[0].diff, {
+        drawFileList: true,
+        matching: 'lines',
+        outputFormat: 'side-by-side',
+    });
+    document.getElementById('destination-elem-id').innerHTML = diffHtml;
+}
+
+
+
 main()
 // Event Handlers for Page Action
 document.getElementById('search').onkeyup = search;
+document.getElementById('searchForm').addEventListener("submit", diffSearch(search))

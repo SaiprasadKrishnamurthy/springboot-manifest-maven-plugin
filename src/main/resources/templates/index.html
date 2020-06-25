@@ -8,10 +8,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="styles.css" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
   <script id="dataJson" type="application/json">
     {{json}}
+  </script>
+  <script id="diffJson" type="application/json">
+    {{diffJson}}
   </script>
   <script src="index.js" defer></script>
 </head>
@@ -23,23 +29,101 @@
       <a id="logo-container" href="#" class="brand-logo">{{artifactId}} ({{version}})</a>
     </div>
   </nav>
-  <div class="container">
-    <div class="section">
-      <div class="row">
-        <div class="col s12 m12">
-          <input placeholder="Search based on commit, author, id , entries or ticket"
-          id="search" type="text">
+  <div class="row">
+    <div class="col s12">
+      <ul class="tabs">
+        <li class="tab col s6"><a class="active" href="#home">Diff Summary</a></li>
+        <li class="tab col s6"><a href="#diff">Detailed Diff</a></li>
+      </ul>
+    </div>
+    <div id="home" class="col s12">
+      <div class="container">
+        <div class="section">
+          <div class="row">
+            <div class="col s12 m12">
+              <input placeholder="Search based on commit, author, id , entries or ticket" id="search" type="text">
+            </div>
+            <div class="col s12 m12" id="viewResults">
+
+              <ul class="collapsible" id="dynamicAccordion">
+
+              </ul>
+
+            </div>
+          </div>
         </div>
-        <div class="col s12 m12" id="viewResults">
-
-          <ul class="collapsible" id="dynamicAccordion">
-
-          </ul>
-
+      </div>
+    </div>
+    <div id="diff" class="col s12">
+      <div class="container">
+        <div class="section">
+          <div class="row">
+            <div class="col s12">
+              <form id="searchForm">
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">insert_drive_file</i>
+                  <input type="text" name="file" id="file-input" class="autocomplete">
+                  <label for="autocomplete-input">File</label>
+                </div>
+                <div class="input-field col s12">
+                  <i class="material-icons prefix">account_circle</i>
+                  <input type="text" name="author" id="author-input" class="autocomplete">
+                  <label for="autocomplete-input">Author</label>
+                </div>
+                <div class="col s12">
+                  <div class="row">
+                    <div class="input-field col s6">
+                      <i class="material-icons prefix">build</i>
+                      <input type="text" name="mavenVersionA" id="mva-input" class="autocomplete">
+                      <label for="autocomplete-input">Maven Version A</label>
+                    </div>
+                    <div class="input-field col s6">
+                      <i class="material-icons prefix">build</i>
+                      <input type="text" name="mavenVersionB" id="mvb-input" class="autocomplete">
+                      <label for="autocomplete-input">Maven Version B</label>
+                    </div>
+                    <div class="input-field col s6">
+                      <i class="material-icons prefix">settings_ethernet</i>
+                      <input type="text" name="gitVersionA" id="gva-input" class="autocomplete">
+                      <label for="autocomplete-input">GIT Version A</label>
+                    </div>
+                    <div class="input-field col s6">
+                      <i class="material-icons prefix">settings_ethernet</i>
+                      <input type="text" name="gitVersionB" id="gvb-input" class="autocomplete">
+                      <label for="autocomplete-input">GIT Version B</label>
+                    </div>
+                    <div class="input-field col s6">
+                      <i class="material-icons prefix">history</i>
+                      <input type="text" class="autocomplete">
+                      <label for="autocomplete-input">Maven Version Name A</label>
+                    </div>
+                    <div class="input-field col s6">
+                      <i class="material-icons prefix">history</i>
+                      <!-- name="mvnb-input" id="mvnb-input" -->
+                      <input type="text" class="autocomplete">
+                      <label for="autocomplete-input">Maven Version Name B</label>
+                    </div>
+                  </div>
+                </div>
+                <div id="search" class="col s12">
+                  <input type="submit" class="btn waves-effect waves-light searchBtn" value="Search">
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div id="dynCard" class="col s12">
+          
+          </div>
+          <div class="col s12">
+            <div id="destination-elem-id"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
 </body>
 
 </html>

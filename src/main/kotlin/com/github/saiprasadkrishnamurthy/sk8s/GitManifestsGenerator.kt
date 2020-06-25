@@ -100,12 +100,14 @@ class GitManifestsGenerator {
             var html = htmlTemplate.replace("{{json}}", json)
             html = html.replace("{{artifactId}}", generateGitManifestsRequest.artifactId)
             html = html.replace("{{version}}", if (versionMetadata.isNotEmpty()) versionMetadata[0].mavenVersion else "")
+            if (generateGitManifestsRequest.maxNoOfMavenVersionsForDiffsDump > 0) {
+                val diffs = databaseDump(generateGitManifestsRequest, versionMetadata)
+                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "diffs.json"), jacksonObjectMapper().writeValueAsString(diffs))
+                html = html.replace("{{diffJson}}", jacksonObjectMapper().writeValueAsString(diffs))
+            }
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "styles.css"), css, Charset.defaultCharset())
-            if (generateGitManifestsRequest.maxNoOfMavenVersionsForDiffsDump > 0) {
-                databaseDump(generateGitManifestsRequest, versionMetadata)
-            }
         } else {
             println("Not generating the GIT manifests as the plugin is not configured to run on the branch:  $currBranch")
         }
@@ -129,7 +131,7 @@ class GitManifestsGenerator {
         }
     }
 
-    private fun databaseDump(generateGitManifestsRequest: GenerateGitManifestsRequest, versionMetadata: List<VersionMetadata>) {
+    private fun databaseDump(generateGitManifestsRequest: GenerateGitManifestsRequest, versionMetadata: List<VersionMetadata>): MutableList<DiffLog> {
         val mavenVersions = versionMetadata.map { it.mavenVersion }.distinct()
         println("Found Maven Versions: $mavenVersions")
         val diffs = mutableListOf<DiffLog>()
@@ -151,8 +153,8 @@ class GitManifestsGenerator {
                     }
                 }
             }
-            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "diffs.json"), jacksonObjectMapper().writeValueAsString(diffs))
         }
+        return diffs
     }
 
     private fun diffs(v: List<VersionMetadata>, prevMavenVersion: String, mavenVersionCanonicalName: String, lastGitSha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): List<DiffLog> {

@@ -39,3 +39,12 @@ summary {
 .date{
     color: #fe9a12;
 }
+#search{
+    display: flex;
+    justify-content: center;
+    color: #fff
+}
+.searchBtn,.waves-effect input[type="submit"]{
+    color: inherit;
+}
+
