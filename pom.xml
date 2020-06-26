@@ -7,7 +7,7 @@
 
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
     <packaging>maven-plugin</packaging>
 
     <url>https://github.com/SaiprasadKrishnamurthy/springboot-manifest-maven-plugin</url>

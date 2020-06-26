@@ -47,22 +47,37 @@ const createAccordion = (json) => {
 }
 
 const outputFile = (value) => {
-    return value.map(element => `
+    return value.map((element, index) => `     
+    <div class="card">
+    <div class="card-content">
     <h5 class="header">File: ${element.file}</h5>
-    <div class="card horizontal">
-      <div class="card-stacked">
-        <div class="card-content">
-          <div class="row">
-          <div class="col s6"><p>Maven version difference: ${element.mavenVersionA} - ${element.mavenVersionB}</p></div>
-          <div class="col s6"><p>GIT version difference ${element.gitVersionA} - ${element.gitVersionB}</p></div>
-          <div class="col s6"><p>Author ${element.author}</p></div>
-          <div class="col s6"><p>Commit Message ${element.commitMessage}</p></div>
-          <div class="col s6"><p>Commit DateTime ${new Date(element.timestamp * 1000).toLocaleString()}</p></div>
-          
-          </div>
-        </div>
-      </div>
-    </div>`).join("")
+    <div class="row">
+    <div class="col s6">
+      <p><b>Maven version difference:</b> ${element.mavenVersionA} - ${element.mavenVersionB}</p>
+    </div>
+    <div class="col s6">
+      <p>GIT version difference ${element.gitVersionA} - ${element.gitVersionB}</p>
+    </div>
+    <div class="col s6">
+      <p><b>Author:</b> ${element.author}</p>
+    </div>
+    <div class="col s6">
+      <p><b>Commit Message:</b> ${element.commitMessage}</p>
+    </div>
+    <div class="col s6">
+      <p><b>Commit DateTime:</b> ${new Date(element.timestamp * 1000).toLocaleString()}</p>
+    </div>
+    <div class="col s12">      
+      <ul class="collapsible">
+      <li>
+      <div class="collapsible-header"><i class="material-icons">filter_drama</i>Expand for diff</div>
+      <div class="collapsible-body"><div id="destination-elem-id${index}"></div></div>
+      </li>
+      </ul>
+    </div>
+  </div>
+    </div>  
+  </div>`).join("")
 }
 
 const groupBy = (arr, key) => {
@@ -72,13 +87,17 @@ const groupBy = (arr, key) => {
     }, {})
 }
 
+const initAccordion = () => {
+    const options = {
+        accordion: false
+    }
+    const elems = document.querySelectorAll('.collapsible');
+    const instances = M.Collapsible.init(elems, options);
+}
+
 const main = () => {
     document.addEventListener('DOMContentLoaded', function () {
-        const options = {
-            accordion: false
-        }
-        const elems = document.querySelectorAll('.collapsible');
-        const instances = M.Collapsible.init(elems, options);
+        initAccordion()
         const elemTab = document.querySelectorAll('.tabs');
         let instance = M.Tabs.init(elemTab, {
         });
@@ -129,7 +148,9 @@ const createCommitCharts = (jsonVal) => {
             let labels = [];
             Object.entries(numberOfCommits).map(([key, value]) => {
                 labels.push(key);
-                data.push(value.length);
+                let totalEntries = 0;
+                value.forEach(ele => totalEntries += ele.entries.length)
+                data.push(totalEntries);
             })
             let borderColor = Array(data.length).fill('rgba(255, 152, 0,1)');
             const ctx = document.getElementById(keyString + 'linechart').getContext('2d');
@@ -194,8 +215,10 @@ const createCommitCharts = (jsonVal) => {
             let labels = [];
             let totalLength = Object.keys(activeContributors).length;
             Object.entries(activeContributors).map(([key, value]) => {
+                let totalEntries = 0;
+                value.forEach(ele => totalEntries += ele.entries.length)
                 labels.push(key.slice(0, 7) + '...');
-                let percentage = (value.length / totalLength)
+                let percentage = (totalEntries / totalLength)
                 data.push(percentage.toFixed(2));
             })
             let borderColor = Array(data.length).fill('rgba(255, 152, 0,1)');
@@ -226,22 +249,20 @@ const diffSearch = search => (event) => {
     let elements = document.getElementById('searchForm').elements;
     let formResults = {};
     [...elements].forEach(element => element.value !== "" && element.value !== "Search" ? formResults[element.name] = (elem) => elem === element.value : undefined);
-    const diffJson = JSON.parse(document.getElementById('diffJson').firstChild.data);
     const filterKeys = Object.keys(formResults);
     let filterResults = diffJson.filter(elem => filterKeys.every(key => formResults[key](elem[key])));
     let uniqueDisplay = [...new Set(filterResults)];
     /* console.log(uniqueDisplay); */
     document.getElementById('dynCard').innerHTML = outputFile(uniqueDisplay);
     diffGenerator(uniqueDisplay);
+    initAccordion()
 }
 
 const autoComplete = () => {
-    const diffJson = JSON.parse(document.getElementById('diffJson').firstChild.data);
     generateAutoComplete(diffJson);
 }
 
 const generateAutoComplete = (json) => {
-    console.log(json);
     const elementAuto = {
         file: "file-input",
         author: "author-input",
@@ -263,12 +284,15 @@ const generateAutoComplete = (json) => {
 }
 
 const diffGenerator = (value) => {
-    let diffHtml = Diff2Html.html(value[0].diff, {
+    let options = {
         drawFileList: true,
         matching: 'lines',
         outputFormat: 'side-by-side',
-    });
-    document.getElementById('destination-elem-id').innerHTML = diffHtml;
+    };
+    value.forEach((element, index) => {
+        let diffHtml = Diff2Html.html(element.diff, options);
+        document.getElementById(`destination-elem-id${index}`).innerHTML = diffHtml;
+    })
 }
 
 

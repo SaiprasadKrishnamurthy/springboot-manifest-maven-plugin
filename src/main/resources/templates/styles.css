@@ -48,3 +48,23 @@ summary {
     color: inherit;
 }
 
+.tabs .tab a {
+    color: purple
+}
+
+.tabs  .tabs .tab a.active {
+    color: #fff;
+} 
+
+.tabs .tab a:hover, .tabs .tab a.active {
+    color: purple;
+}
+
+.tabs .tab a:focus, .tabs .tab a:focus.active{
+    background-color: #6f0b6f78;
+    color:#fff;
+}
+
+.tabs .indicator{
+    background-color: purple;
+}

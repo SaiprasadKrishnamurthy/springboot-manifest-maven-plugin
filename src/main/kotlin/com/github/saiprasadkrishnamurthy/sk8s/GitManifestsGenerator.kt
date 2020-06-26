@@ -39,7 +39,7 @@ class GitManifestsGenerator {
         val shouldRun = generateGitManifestsRequest.executeOnBranches
                 .any { extractVariableNames(currBranch, Pattern.compile(it)).any { it.trim().isNotBlank() } }
         if (shouldRun) {
-            val historyCommand = "git log --oneline --decorate"
+            val historyCommand = "git --no-pager log --oneline --decorate"
             val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
             val sdf = SimpleDateFormat("dd/MM/yyyy")
 
@@ -100,10 +100,16 @@ class GitManifestsGenerator {
             var html = htmlTemplate.replace("{{json}}", json)
             html = html.replace("{{artifactId}}", generateGitManifestsRequest.artifactId)
             html = html.replace("{{version}}", if (versionMetadata.isNotEmpty()) versionMetadata[0].mavenVersion else "")
+            var ddTemplate = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/detailed_diff.js"), Charset.defaultCharset())
             if (generateGitManifestsRequest.maxNoOfMavenVersionsForDiffsDump > 0) {
                 val diffs = databaseDump(generateGitManifestsRequest, versionMetadata)
-                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "diffs.json"), jacksonObjectMapper().writeValueAsString(diffs))
-                html = html.replace("{{diffJson}}", jacksonObjectMapper().writeValueAsString(diffs))
+                val diffJsonString = jacksonObjectMapper().writeValueAsString(diffs)
+                ddTemplate = ddTemplate.replace("{{diffJson}}", diffJsonString)
+                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "diffs.json"), diffJsonString)
+                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "detailed_diff.js"), ddTemplate)
+            } else {
+                ddTemplate = ddTemplate.replace("{{diffJson}}", "[]")
+                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "detailed_diff.js"), ddTemplate)
             }
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
