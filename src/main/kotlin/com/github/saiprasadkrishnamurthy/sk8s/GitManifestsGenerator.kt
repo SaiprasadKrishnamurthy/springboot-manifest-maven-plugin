@@ -154,8 +154,9 @@ class GitManifestsGenerator {
                         val j = versionMetadata.filter { it.mavenVersion == b }
                         val lastGitSha = j[0].gitSha
                         val idx = mavenVersions.indexOf(a)
-                        val mavenVersionCanonicalName = if (idx == 0) "CURRENT" else "CURRENT-$idx"
-                        diffs.addAll(diffs(i, j[0].mavenVersion, mavenVersionCanonicalName, lastGitSha, generateGitManifestsRequest))
+                        val mavenVersionCanonicalNameA = if (idx == 0) "CURRENT" else "CURRENT-$idx"
+                        val mavenVersionCanonicalNameB = "CURRENT-(${idx - 1}"
+                        diffs.addAll(diffs(i, j[0].mavenVersion, mavenVersionCanonicalNameA, mavenVersionCanonicalNameB, lastGitSha, generateGitManifestsRequest))
                     }
                 }
             }
@@ -163,7 +164,7 @@ class GitManifestsGenerator {
         return diffs
     }
 
-    private fun diffs(v: List<VersionMetadata>, prevMavenVersion: String, mavenVersionCanonicalName: String, lastGitSha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): List<DiffLog> {
+    private fun diffs(v: List<VersionMetadata>, prevMavenVersion: String, mavenVersionCanonicalNameA: String, mavenVersionCanonicalNameB: String, lastGitSha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): List<DiffLog> {
         return v.flatMap {
             it.entries.map { f ->
                 val file = f.split("\\s".toRegex()).filter { it.trim().isNotBlank() }[1]
@@ -178,7 +179,8 @@ class GitManifestsGenerator {
                         author = it.author,
                         timestamp = it.timestamp,
                         commitMessage = it.commitMessage,
-                        mavenVersionCanonicalName = mavenVersionCanonicalName)
+                        mavenVersionCanonicalNameA = mavenVersionCanonicalNameA,
+                        mavenVersionCanonicalNameB = mavenVersionCanonicalNameB)
             }
         }
     }

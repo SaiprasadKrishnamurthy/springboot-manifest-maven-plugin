@@ -22,102 +22,91 @@
 
 <body>
 
-  <nav class="light-blue lighten-1" role="navigation">
-    <div class="nav-wrapper container">
-      <a id="logo-container" href="#" class="brand-logo">{{artifactId}}({{version}})</a>
-    </div>
-  </nav>
-  <div class="row">
-    <div class="col s12">
-      <ul class="tabs">
-        <li class="tab col s6"><a class="active" href="#home">Diff Summary</a></li>
-        <li class="tab col s6"><a href="#diff">Detailed Diff</a></li>
-      </ul>
-    </div>
-    <div id="home" class="col s12">
-      <div class="container">
-        <div class="section">
-          <div class="row">
-            <div class="col s12 m12">
-              <input placeholder="Search based on commit, author, id , entries or ticket" id="search" type="text"
-                autocomplete="off">
-            </div>
-            <div class="col s12 m12" id="viewResults">
-
-              <ul class="collapsible" id="dynamicAccordion">
-
-              </ul>
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="diff" class="col s12">
-      <div class="container">
-        <div class="section">
-          <div class="row">
-            <div class="col s12">
-              <form id="searchForm">
-                <div class="input-field col s12">
-                  <i class="material-icons prefix">insert_drive_file</i>
-                  <input type="text" name="file" id="file-input" class="autocomplete" autocomplete="off">
-                  <label for="file-input">File</label>
-                </div>
-                <div class="input-field col s12">
-                  <i class="material-icons prefix">account_circle</i>
-                  <input type="text" name="author" id="author-input" class="autocomplete" autocomplete="off">
-                  <label for="author-input">Author</label>
-                </div>
-                <div class="col s12">
-                  <div class="row">
-                    <div class="input-field col s6">
-                      <i class="material-icons prefix">settings_ethernet</i>
-                      <input type="text" name="mavenVersionA" id="mva-input" class="autocomplete" autocomplete="off">
-                      <label for="mva-input">Maven Version A</label>
-                    </div>
-                    <div class="input-field col s6">
-                      <i class="material-icons prefix">settings_ethernet</i>
-                      <input type="text" name="mavenVersionB" id="mvb-input" class="autocomplete" autocomplete="off">
-                      <label for="mvb-input">Maven Version B</label>
-                    </div>
-                    <div class="input-field col s6">
-                      <i class="material-icons prefix">settings_ethernet</i>
-                      <input type="text" name="gitVersionA" id="gva-input" class="autocomplete" autocomplete="off">
-                      <label for="gva-input">GIT Version A</label>
-                    </div>
-                    <div class="input-field col s6">
-                      <i class="material-icons prefix">settings_ethernet</i>
-                      <input type="text" name="gitVersionB" id="gvb-input" class="autocomplete" autocomplete="off">
-                      <label for="gvb-input">GIT Version B</label>
-                    </div>
-                    <div class="input-field col s6">
-                      <i class="material-icons prefix">settings_ethernet</i>
-                      <input type="text" class="autocomplete" id="mvna-input" autocomplete="off">
-                      <label for="mvna-input">Maven Version Name A</label>
-                    </div>
-                    <div class="input-field col s6">
-                      <i class="material-icons prefix">settings_ethernet</i>
-                      <!-- name="mvnb-input" id="mvnb-input" -->
-                      <input type="text" class="autocomplete" id="mvnb-input" autocomplete="off">
-                      <label for="mvnb-input">Maven Version Name B</label>
-                    </div>
-                  </div>
-                </div>
-                <div id="search" class="col s12">
-                  <input type="submit" class="btn waves-effect waves-light searchBtn" value="Search">
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+<nav class="light-blue darken-4" role="navigation">
+  <div class="nav-wrapper container">
+    <a id="logo-container" href="#" class="brand-logo">{{artifactId}}({{version}})</a>
+  </div>
+</nav>
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs">
+      <li class="tab col s6 light-blue lighten-4"><a class="active" href="#home">Diff Summary</a></li>
+      <li class="tab col s6 light-blue lighten-4"><a href="#diff">Detailed Diff</a></li>
+    </ul>
+  </div>
+  <div id="home" class="col s12">
+    <div class="container">
+      <div class="section">
         <div class="row">
-          <div id="dynCard" class="col s12">
+          <div class="col s12 m12">
+            <input placeholder="Search based on commit, author, id , entries or ticket" id="search" type="text"
+                   autocomplete="off">
+          </div>
+          <div class="col s12 m12" id="viewResults">
+
+            <ul class="collapsible" id="dynamicAccordion">
+
+            </ul>
+
           </div>
         </div>
       </div>
     </div>
   </div>
+  <div id="diff" class="col s12">
+    <div class="container">
+      <div class="section">
+        <div class="row">
+          <div class="col s12">
+            <form id="searchForm">
+              <div class="input-field col s12">
+                <i class="material-icons prefix">insert_drive_file</i>
+                <input type="text" name="file" id="file-input" class="autocomplete" autocomplete="off">
+                <label for="file-input">File</label>
+              </div>
+              <div class="input-field col s12">
+                <i class="material-icons prefix">account_circle</i>
+                <input type="text" name="author" id="author-input" class="autocomplete" autocomplete="off">
+                <label for="author-input">Author</label>
+              </div>
+              <div class="col s12">
+                <div class="row">
+                  <div class="input-field col s6">
+                    <i class="material-icons prefix">settings_ethernet</i>
+                    <input type="text" name="mavenVersionA" id="mva-input" class="autocomplete" autocomplete="off">
+                    <label for="mva-input">Maven Version A</label>
+                  </div>
+                  <div class="input-field col s6">
+                    <i class="material-icons prefix">settings_ethernet</i>
+                    <input type="text" name="mavenVersionB" id="mvb-input" class="autocomplete" autocomplete="off">
+                    <label for="mvb-input">Maven Version B</label>
+                  </div>
+                  <div class="input-field col s6">
+                    <i class="material-icons prefix">settings_ethernet</i>
+                    <input type="text" name="gitVersionA" id="gva-input" class="autocomplete" autocomplete="off">
+                    <label for="gva-input">GIT Version A</label>
+                  </div>
+                  <div class="input-field col s6">
+                    <i class="material-icons prefix">settings_ethernet</i>
+                    <input type="text" name="gitVersionB" id="gvb-input" class="autocomplete" autocomplete="off">
+                    <label for="gvb-input">GIT Version B</label>
+                  </div>
+                </div>
+              </div>
+              <div id="searchDiff" class="col s12">
+                <input type="submit" class="btn waves-effect waves-light searchBtn light-blue darken-4" value="Search">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div id="dynCard" class="col s12">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 </body>
 

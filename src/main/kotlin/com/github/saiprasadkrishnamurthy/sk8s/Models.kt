@@ -41,5 +41,6 @@ data class DiffLog(val mavenVersionA: String,
                    val file: String,
                    val diff: String,
                    val commitMessage: String,
-                   val mavenVersionCanonicalName: String)
+                   val mavenVersionCanonicalNameA: String,
+                   val mavenVersionCanonicalNameB: String)
 

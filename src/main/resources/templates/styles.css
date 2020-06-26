@@ -28,7 +28,7 @@ summary {
     display: flex; 
 }
 .commit{
-    color: green;
+    color: blue;
 }
 .message{
     color:#0000ffb5;
@@ -39,32 +39,25 @@ summary {
 .date{
     color: #fe9a12;
 }
-#search{
+#searchDiff{
     display: flex;
     justify-content: center;
-    color: #fff
 }
 .searchBtn,.waves-effect input[type="submit"]{
-    color: inherit;
+    color: #fff;
+}
+
+
+.tabs .tab a:focus, .tabs .tab a:focus.active{
+    background-color: #03a9f4;
+    color: #000;
+}
+
+.tabs .tab a:hover, .tabs .tab a.active {
+    background-color: #03a9f4;
+    color: #000;
 }
 
 .tabs .tab a {
-    color: purple
-}
-
-.tabs  .tabs .tab a.active {
-    color: #fff;
-} 
-
-.tabs .tab a:hover, .tabs .tab a.active {
-    color: purple;
-}
-
-.tabs .tab a:focus, .tabs .tab a:focus.active{
-    background-color: #6f0b6f78;
-    color:#fff;
-}
-
-.tabs .indicator{
-    background-color: purple;
+    color: #000;
 }
