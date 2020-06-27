@@ -4,7 +4,7 @@
 * Git version tree with the maven version in a JSON and HTML so it can be packaged in the jar file as version metadata.
 * Kubernetes Deployment files and Config Map files pairs for every spring profile (application-<XXXX>.properties)
 
-## Usage for GIT Manifests generation:
+## GIT Manifests generation:
 ```
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
@@ -27,9 +27,23 @@
 ```
 
 ### The generated GIT Manifests HTML will look like this (which can be bundled into any springboot JAR file)
-<img src="html.png" width=800 height=600 />
+## Versions Summary screen
+<img src="summary.png" width=800 height=600 />
+
+## Detailed Differences screen
+<img src="diff.png" width=800 height=600 />
 
 Thanks to Nick (https://github.com/nickx720) for his contribution towards the UI :-)
+
+### Plugin configuration options
+Option | Description | Default | Notes 
+--- | --- | --- | 
+skip | Skips the plugin execution | false |  
+outputDir | Out dir where the GIT manifest files will be generated | target/manifests/git |  -
+maxRevisions | Maximum number of git revisions to extract from current  | 100 |  The more the number, the more time it may take.
+ticketPatterns | Comma separated list of the ticket (bug or feature) regex patterns of this artifact.  |  |  This is an optional field. Ticket numbers are extracted from the commit messages if matched.
+runOnBranchPatterns | Execute this plugin only on the branch matching the patterns (comma separated regular expressions).  | master |  
+maxNoOfMavenVersionsForDiffsDump | If you are interested in extracting the detailed diff (file contents), this is the max number of maven versions (including the current) to extract the detailed diffs for.  | optional | Higher the number, more the time it may take to extract the detailed diffs.|   
 
 ### Kubernetes Manifests.
 Imagine we have the following application properties files in a regular spring boot app.
