@@ -41,7 +41,7 @@ Option | Description | Default | Notes |
 skip | Skips the plugin execution | false | NA  
 outputDir | Out dir where the GIT manifest files will be generated | target/manifests/git |  NA 
 maxRevisions | Maximum number of git revisions to extract from current  | 100 |  The more the number, the more time it may take.
-ticketPatterns | Comma separated list of the ticket (bug or feature) regex patterns of this artifact.  |  |   Ticket numbers are extracted from the commit messages if matched.
+ticketPatterns | (Mandatory) Comma separated list of the ticket (bug or feature) regex patterns of this artifact.  |  |   Ticket numbers are extracted from the commit messages if matched.
 runOnBranchPatterns | Execute this plugin only on the branch matching the patterns (comma separated regular expressions).  | master | NA 
 maxNoOfMavenVersionsForDiffsDump | If you are interested in extracting the detailed diff (file contents), this is the max number of maven versions (including the current) to extract the detailed diffs for.  | optional | Higher the number, more the time it may take to extract the detailed diffs.| NA    
 
