@@ -25,7 +25,7 @@ class GenerateGitManifestsMojo : AbstractMojo() {
     @Parameter(property = "outputDir", defaultValue = "target/manifests/git")
     private lateinit var outputDir: String
 
-    @Parameter(property = "ticketPatterns", defaultValue = "")
+    @Parameter(property = "ticketPatterns", defaultValue = "ZZAABBCCXEWQX")
     private lateinit var ticketPatterns: String
 
     @Parameter(property = "maxNoOfMavenVersionsForDiffsDump", defaultValue = "0")

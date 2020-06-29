@@ -49,12 +49,12 @@ class GitManifestsGenerator {
                     .filter { it.isNotEmpty() }
                     .map { it.split(" ")[0] }
                     .map { sha ->
-                        val entries = "git show --pretty= --name-status $sha"
+                        val entries = "git --no-pager show --pretty= --name-status $sha --first-parent"
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split("\n")
                                 .filter { it.isNotEmpty() }
 
-                        val details = "git show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
+                        val details = "git --no-pager show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split(GIT_LOG_ENTRIES_DELIMITER)
                         val author = details[0]
