@@ -17,7 +17,7 @@
                 <goal>generate-git-manifests</goal>
             </goals>
         <configuration>
-            <ticketPatterns>SPR-[0-9]+,IABC-[0-9]+</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system --> 
+            <ticketPatterns>SPR-[0-9]+,IABC-[0-9]+</ticketPatterns> 
             <skip>false</skip> <!-- Optional default false-->
             <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
         </configuration>
