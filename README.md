@@ -28,7 +28,7 @@
 </plugin>
 ```
 
-### The generated GIT Manifests HTML will look like this (which can be bundled into any springboot JAR file)
+### The generated GIT Manifests HTML will look like this (which can be bundled into any JAR file)
 ## Versions Summary screen
 <img src="summary.png" width=800 height=600 />
 
