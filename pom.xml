@@ -7,7 +7,7 @@
 
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
     <packaging>maven-plugin</packaging>
 
     <url>https://github.com/SaiprasadKrishnamurthy/springboot-manifest-maven-plugin</url>
@@ -117,6 +117,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>expiringmap</artifactId>
+            <version>0.5.10-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit-jupiter.version}</version>
@@ -133,6 +138,12 @@
             <groupId>io.reflectoring.diffparser</groupId>
             <artifactId>diffparser</artifactId>
             <version>1.4</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.32.3</version>
         </dependency>
     </dependencies>
     <build>
@@ -219,7 +230,7 @@
             <plugin>
                 <groupId>com.github.saiprasadkrishnamurthy</groupId>
                 <artifactId>springboot-manifest-maven-plugin</artifactId>
-                <version>1.7</version>
+                <version>1.9</version>
                 <executions>
                     <execution>
                         <id>generate-git-manifests</id>
@@ -232,6 +243,7 @@
                             <outputDir>target/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
                             <maxRevisions>20</maxRevisions>
                             <maxNoOfMavenVersionsForDiffsDump>3</maxNoOfMavenVersionsForDiffsDump>
+                            <transitiveDepsDatabaseDump>true</transitiveDepsDatabaseDump>
                         </configuration>
                     </execution>
                 </executions>

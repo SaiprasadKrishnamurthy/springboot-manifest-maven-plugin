@@ -1,5 +1,7 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
+import org.apache.maven.artifact.Artifact
+
 /**
  * Various model objects.
  * @author Sai.
@@ -21,7 +23,9 @@ data class GenerateGitManifestsRequest(val outputDir: String,
                                        val ticketPatterns: List<String> = listOf(),
                                        val maxRevisions: Int = 100,
                                        val maxNoOfMavenVersionsForDiffsDump: Int = 0,
-                                       val executeOnBranches: List<String> = listOf("master"))
+                                       val executeOnBranches: List<String> = listOf("master"),
+                                       val dependencyArtifacts: List<Artifact> = emptyList(),
+                                       val transitiveDepsDatabaseDump: Boolean = false)
 
 data class VersionMetadata(val gitSha: String,
                            val mavenVersion: String,

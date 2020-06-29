@@ -1,5 +1,6 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.reflectoring.diffparser.api.model.Diff
 import org.apache.commons.io.IOUtils
@@ -10,9 +11,12 @@ import java.io.StringReader
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.sql.DriverManager
+import java.sql.PreparedStatement
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.jar.JarFile
 import java.util.regex.Pattern
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
@@ -114,9 +118,60 @@ class GitManifestsGenerator {
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "styles.css"), css, Charset.defaultCharset())
+
+            if (generateGitManifestsRequest.transitiveDepsDatabaseDump) {
+                val releaseDB = generateGitManifestsRequest.outputDir + "/" + generateGitManifestsRequest.artifactId + ".db"
+                val connection = DriverManager.getConnection("jdbc:sqlite:$releaseDB")
+                val statement = connection.createStatement()
+                statement.executeUpdate("create table VERSION_INFO (gitSha string, artifactId, mavenVersion string, timestamp long, author string, commitMessage string, tickets text, entries text, day string)")
+                statement.executeUpdate("CREATE INDEX artifactId ON VERSION_INFO (artifactId)")
+                statement.executeUpdate("CREATE INDEX mavenVersion ON VERSION_INFO (mavenVersion)")
+                statement.executeUpdate("CREATE INDEX author ON VERSION_INFO (author)")
+                statement.executeUpdate("CREATE INDEX gitSha ON VERSION_INFO (gitSha)")
+                statement.queryTimeout = 30
+                val pstmt = connection.prepareStatement(
+                        "INSERT INTO VERSION_INFO(gitSha, artifactId, mavenVersion, timestamp, author, commitMessage, tickets, entries, day) VALUES(?,?,?,?,?,?,?,?,?)")
+                try {
+                    generateGitManifestsRequest.dependencyArtifacts.forEach { a ->
+                        val jarFile = JarFile(a.file)
+                        val entries = jarFile.entries()
+                        while (entries.hasMoreElements()) {
+                            val element = entries.nextElement()
+                            if (element.name.endsWith("versionInfo.json")) {
+                                val istream = jarFile.getInputStream(element)
+                                val contents = IOUtils.toString(istream, Charset.defaultCharset())
+                                val vi = jacksonObjectMapper().readValue(contents.toByteArray(Charset.defaultCharset()), object : TypeReference<List<VersionMetadata>>() {})
+                                loadToDB(vi, pstmt, a.artifactId)
+                            }
+                        }
+                    }
+                    loadToDB(versionMetadata, pstmt, generateGitManifestsRequest.artifactId)
+                } finally {
+                    pstmt.close()
+                    statement.close()
+                    connection.close()
+                }
+            }
         } else {
             println("Not generating the GIT manifests as the plugin is not configured to run on the branch:  $currBranch")
         }
+    }
+
+    private fun loadToDB(versionMetadata: List<VersionMetadata>, pstmt: PreparedStatement, artifactId: String) {
+        versionMetadata.forEach { vm ->
+            pstmt.setString(1, vm.gitSha)
+            pstmt.setString(2, artifactId)
+            pstmt.setString(3, vm.mavenVersion)
+            pstmt.setLong(4, vm.timestamp)
+            pstmt.setString(5, vm.author)
+            pstmt.setString(6, vm.commitMessage)
+            pstmt.setString(7, vm.tickets.joinToString(","))
+            pstmt.setString(8, vm.entries.joinToString(","))
+            pstmt.setString(9, vm.day)
+            // Add row to the batch.
+            pstmt.addBatch();
+        }
+        pstmt.executeBatch()
     }
 
     private fun pomVersion(sha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): String {
