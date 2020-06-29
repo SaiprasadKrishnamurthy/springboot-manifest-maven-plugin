@@ -9,7 +9,7 @@
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
     <executions>
         <execution>
             <id>generate-git-manifests</id>
@@ -46,6 +46,21 @@ maxRevisions | Maximum number of git revisions to extract from current  | 100 | 
 ticketPatterns | Comma separated list of the ticket (bug or feature) regex patterns of this artifact.  |  |   Ticket numbers are extracted from the commit messages if matched.
 runOnBranchPatterns | Execute this plugin only on the branch matching the patterns (comma separated regular expressions).  | master | NA 
 maxNoOfMavenVersionsForDiffsDump | If you are interested in extracting the detailed diff (file contents), this is the max number of maven versions (including the current) to extract the detailed diffs for.  | optional | Higher the number, more the time it may take to extract the detailed diffs.| NA    
+transitiveDepsDatabaseDump (Boolean) | If you want the version metadata of this artifact and it's transitive dependencies to be dumped into an sqlite db file | optional (defaults to false) | Use it for top level artifacts (micro services.jar) where you want to have a single DB dump of all the version information of all the artifacts. | NA    
+
+#### If transitiveDepsDatabaseDump is set to true, the following is the schema of the SQLITE table.
+Column | Description | Datatype |
+----- | --- | --- |
+GITSHA | Git Commit SHA | string |  
+ARTIFACTID | maven artifact id | string |  
+MAVENVERSION | Maven version | string |  
+TIMESTAMP | Commit timestamp | long |  
+AUTHOR | Commit Author | string |  
+COMMITMESSAGE | Commit message | string |  
+TICKETS | Issue/Feature tickets for this commit | string |  
+ENTRIES | List of files for this commit | string |  
+DAY | Day of commit in dd/MM/yy | string |
+  
 
 
 ### Kubernetes Manifests.
