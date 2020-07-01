@@ -1,6 +1,7 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
 import org.junit.jupiter.api.BeforeAll
+import java.nio.file.Paths
 
 class K8sManifestsGeneratorTest {
 
@@ -20,6 +21,7 @@ class K8sManifestsGeneratorTest {
                 deploymentYmlTemplateFile = "deployment/service-deployment-template.yml",
                 configMapYmlTemplateFile = "deployment/configmap-template.yml",
                 outputDir = "target")
+        Paths.get(req.outputDir, req.artifactId).toFile().mkdirs()
         K8sManifestsGenerator.newInstance().generateManifests(req)
 
     }

@@ -96,7 +96,7 @@ class GitManifestsGenerator {
                 }
             }
             val json = jacksonObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(versionMetadata)
-            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "versionInfo.json"), json)
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "versionInfo.json"), json)
 
             var htmlTemplate = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/index.html"), Charset.defaultCharset())
             var js = IOUtils.toString(GitManifestsGenerator::class.java.classLoader.getResourceAsStream("templates/index.js"), Charset.defaultCharset())
@@ -109,15 +109,15 @@ class GitManifestsGenerator {
                 val diffs = databaseDump(generateGitManifestsRequest, versionMetadata)
                 val diffJsonString = jacksonObjectMapper().writeValueAsString(diffs)
                 ddTemplate = ddTemplate.replace("{{diffJson}}", diffJsonString)
-                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "diffs.json"), diffJsonString)
-                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "detailed_diff.js"), ddTemplate)
+                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "diffs.json"), diffJsonString)
+                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "detailed_diff.js"), ddTemplate)
             } else {
                 ddTemplate = ddTemplate.replace("{{diffJson}}", "[]")
-                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "detailed_diff.js"), ddTemplate)
+                Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "detailed_diff.js"), ddTemplate)
             }
-            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.html"), html, Charset.defaultCharset())
-            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "index.js"), js, Charset.defaultCharset())
-            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, "styles.css"), css, Charset.defaultCharset())
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "index.html"), html, Charset.defaultCharset())
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "index.js"), js, Charset.defaultCharset())
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "styles.css"), css, Charset.defaultCharset())
 
             if (generateGitManifestsRequest.transitiveDepsDatabaseDump) {
                 val releaseDB = generateGitManifestsRequest.outputDir + "/" + generateGitManifestsRequest.artifactId + ".db"

@@ -9,7 +9,7 @@
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>1.9</version>
+    <version>1.10</version>
     <executions>
         <execution>
             <id>generate-git-manifests</id>

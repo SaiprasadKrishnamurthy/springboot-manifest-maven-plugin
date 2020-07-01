@@ -1,9 +1,13 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.wnameless.json.flattener.JsonFlattener
+import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.FileInputStream
 import java.nio.charset.Charset
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -23,16 +27,9 @@ class K8sManifestsGenerator {
 
         val propsDir = Paths.get(generateK8sManifestsRequest.baseDir, "src/main/resources")
 
-        val propsContexts = File(propsDir.toString()).walk()
-                .filter { it.isFile }
-                .filter { it.extension == "properties" }
-                .map {
-                    val nameWithoutExtension = it.nameWithoutExtension
-                    val profile = if (nameWithoutExtension == "application") "_" else nameWithoutExtension.replace("application-", "")
-                    val props = Properties()
-                    props.load(FileInputStream(it))
-                    PropertiesContext(profile = profile, file = it.path, props = props.toMutableMap())
-                }.toList()
+        val propsContexts1 = loadProps(propsDir)
+        val propsContexts2 = loadYml(propsDir)
+        val propsContexts = propsContexts1 + propsContexts2
 
         val baseProps = propsContexts
                 .filter { it.profile == "_" }
@@ -66,15 +63,44 @@ class K8sManifestsGenerator {
                 deploymentTemplate = deploymentTemplate.replace("\${${k.toString()}}", v.toString())
             }
             val profile = if (pc.profile == "_") "" else "_${pc.profile}"
-            Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, "deployment$profile.yml"), deploymentTemplate, Charset.defaultCharset())
+            Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "deployment$profile.yml"), deploymentTemplate, Charset.defaultCharset())
 
             val properties = pc.normalisedProps.map {
                 "  ${it.key}: ${it.value}"
             }.joinToString("\n")
             configMapTemplate = configMapTemplate.replace("\${properties}", properties)
             configMapTemplate = configMapTemplate.replace("\${configMapTemplateName}", pc.normalisedProps["configMapTemplateName"].toString())
-            Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, "configMap$profile.yml"), configMapTemplate, Charset.defaultCharset())
+            Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "configMap$profile.yml"), configMapTemplate, Charset.defaultCharset())
         }
+    }
+
+    private fun loadProps(propsDir: Path): List<PropertiesContext> {
+        return File(propsDir.toString()).walk()
+                .filter { it.isFile }
+                .filter { it.extension == "properties" }
+                .map {
+                    val nameWithoutExtension = it.nameWithoutExtension
+                    val profile = if (nameWithoutExtension == "application") "_" else nameWithoutExtension.replace("application-", "")
+                    val props = Properties()
+                    props.load(FileInputStream(it))
+                    PropertiesContext(profile = profile, file = it.path, props = props.toMutableMap())
+                }.toList()
+    }
+
+    private fun loadYml(propsDir: Path): List<PropertiesContext> {
+        return File(propsDir.toString()).walk()
+                .filter { it.isFile }
+                .filter { it.extension == "yml" || it.extension == "yaml" }
+                .filter { !it.name.contains("-template.yml") }
+                .map {
+                    val nameWithoutExtension = it.nameWithoutExtension
+                    val profile = if (nameWithoutExtension == "application") "_" else nameWithoutExtension.replace("application-", "")
+                    val yaml = Yaml()
+                    val inputStream = FileInputStream(it)
+                    val obj = yaml.load<Map<String, Any>>(inputStream)
+                    val flt = JsonFlattener.flattenAsMap(jacksonObjectMapper().writeValueAsString(obj)) as MutableMap<Any, Any>
+                    PropertiesContext(profile = profile, file = it.path, props = flt)
+                }.toList()
     }
 
     private fun loadProps(generateK8sManifestsRequest: GenerateK8sManifestsRequest, propsContext: PropertiesContext) {

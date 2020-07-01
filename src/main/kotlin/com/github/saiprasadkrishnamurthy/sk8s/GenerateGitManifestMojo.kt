@@ -8,7 +8,7 @@ import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.plugins.annotations.ResolutionScope
 import org.apache.maven.project.MavenProject
-import java.io.File
+import java.nio.file.Paths
 
 /**
  * An example Maven Mojo that generates GIT manifests.
@@ -51,7 +51,7 @@ class GenerateGitManifestsMojo : AbstractMojo() {
                 val groupId = project.groupId
                 val artifactId = project.artifactId
                 val version = project.version
-                File(outputDir).mkdirs()
+                Paths.get(outputDir, artifactId).toFile().mkdirs()
                 log.info(String.format(" Generating GIT Manifest Files for:  %s:%s:%s", groupId, artifactId, version))
                 GitManifestsGenerator.newInstance().generateManifests(GenerateGitManifestsRequest(
                         ticketPatterns = ticketPatterns.split(","),
