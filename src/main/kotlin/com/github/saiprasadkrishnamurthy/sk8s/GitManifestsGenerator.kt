@@ -6,6 +6,7 @@ import io.reflectoring.diffparser.api.model.Diff
 import org.apache.commons.io.IOUtils
 import org.w3c.dom.NodeList
 import org.xml.sax.InputSource
+import org.zeroturnaround.exec.ProcessExecutor
 import java.io.File
 import java.io.StringReader
 import java.nio.charset.Charset
@@ -41,14 +42,12 @@ class GitManifestsGenerator {
                 .take(1)[0]
                 .replace("*", "")
                 .trim()
-        println(" One ")
 
         val shouldRun = generateGitManifestsRequest.executeOnBranches
                 .any { extractVariableNames(currBranch, Pattern.compile(it)).any { it.trim().isNotBlank() } }
         if (shouldRun) {
             val historyCommand = "git --no-pager log --oneline --decorate"
             val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
-            println(" Two ")
             val sdf = SimpleDateFormat("dd/MM/yyyy")
 
             var versionMetadata = logs
@@ -61,12 +60,10 @@ class GitManifestsGenerator {
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split("\n")
                                 .filter { it.isNotEmpty() }
-                        println("$sha Three ")
 
                         val details = "git --no-pager show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split(GIT_LOG_ENTRIES_DELIMITER)
-                        println("$sha Four ")
                         val author = details[0]
                         val timestamp = details[1].toLong()
                         val authorName = details[2]
@@ -183,11 +180,9 @@ class GitManifestsGenerator {
     private fun pomVersion(sha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): String {
         return try {
             val pomContents = "git --no-pager show $sha:pom.xml".runCommand(File(generateGitManifestsRequest.baseDir))
-            println(" Five: ${pomContents?.length}")
             val xpFactory = XPathFactory.newInstance()
             val xPath = xpFactory.newXPath().compile("//*[local-name() = 'version']")
             val nodeList = xPath.evaluate(InputSource(StringReader(pomContents)), XPathConstants.NODESET) as NodeList
-            println(" Six: Nodelist length: ${nodeList.length}")
             if (nodeList.length > 0) {
                 var node = nodeList.item(0)
                 if (node.parentNode.localName == "parent") {
@@ -196,14 +191,12 @@ class GitManifestsGenerator {
                 node.textContent
             } else ""
         } catch (ex: Exception) {
-            ex.printStackTrace()
             ""
         }
     }
 
     private fun databaseDump(generateGitManifestsRequest: GenerateGitManifestsRequest, versionMetadata: List<VersionMetadata>): MutableList<DiffLog> {
         val mavenVersions = versionMetadata.map { it.mavenVersion }.distinct()
-        println("Found Maven Versions: $mavenVersions")
         val diffs = mutableListOf<DiffLog>()
         if (mavenVersions.size > 1) {
             // N-1 Version diff.
@@ -220,7 +213,7 @@ class GitManifestsGenerator {
                         val idx = mavenVersions.indexOf(a)
                         val mavenVersionCanonicalNameA = if (idx == 0) "CURRENT" else "CURRENT-$idx"
                         val mavenVersionCanonicalNameB = "CURRENT-(${idx - 1}"
-                        diffs.addAll(diffs(i, j[0].mavenVersion, mavenVersionCanonicalNameA, mavenVersionCanonicalNameB, lastGitSha, generateGitManifestsRequest))
+                        diffs.addAll(diffs(i, j[0].mavenVersion, mavenVersionCanonicalNameB, mavenVersionCanonicalNameA, lastGitSha, generateGitManifestsRequest))
                     }
                 }
             }
@@ -232,12 +225,12 @@ class GitManifestsGenerator {
         return v.flatMap {
             it.entries.map { f ->
                 val file = f.split("\\s".toRegex()).filter { it.trim().isNotBlank() }[1]
-                val cmd = "git diff ${it.gitSha} $lastGitSha $file"
+                val cmd = "git diff $lastGitSha ${it.gitSha} $file"
                 val d = cmd.runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                 DiffLog(mavenVersionA = it.mavenVersion,
                         mavenVersionB = prevMavenVersion,
-                        gitVersionA = it.gitSha,
-                        gitVersionB = lastGitSha,
+                        gitVersionA = lastGitSha,
+                        gitVersionB = it.gitSha,
                         file = file,
                         diff = d,
                         author = it.author,
@@ -267,12 +260,14 @@ class GitManifestsGenerator {
             timeoutAmount: Long = 60,
             timeoutUnit: TimeUnit = TimeUnit.SECONDS
     ): String? = try {
-        ProcessBuilder(split("\\s".toRegex()))
+        ProcessExecutor()
+                .command(split("\\s".toRegex()))
+                .readOutput(true)
                 .directory(workingDir)
-                .redirectOutput(ProcessBuilder.Redirect.PIPE)
-                .redirectError(ProcessBuilder.Redirect.PIPE)
-                .start().apply { waitFor(timeoutAmount, timeoutUnit) }
-                .inputStream.bufferedReader().readText()
+                .start()
+                .future
+                .get()
+                .outputUTF8()
     } catch (e: java.io.IOException) {
         e.printStackTrace()
         ""

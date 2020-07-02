@@ -1,6 +1,5 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
-import com.mitchtalmadge.asciidata.graph.ASCIIGraph
 import org.zeroturnaround.exec.ProcessExecutor
 import kotlin.random.Random
 
@@ -11,9 +10,9 @@ object Foo {
     fun main(args: Array<String>) {
 
         val randomValues = List(133) { Random.nextDouble(0.0, 100.0) }
-        println(ASCIIGraph.fromSeries(randomValues.toDoubleArray())
-                .withNumRows(5)
-                .plot())
+//        println(ASCIIGraph.fromSeries(randomValues.toDoubleArray())
+//                .withNumRows(5)
+//                .plot())
         println(runCommand("git --no-pager log --oneline --decorate"))
         println()
         println(runCommand("git --no-pager show --pretty= --name-status 62eac0d --first-parent"))
