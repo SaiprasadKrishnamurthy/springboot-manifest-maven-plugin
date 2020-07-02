@@ -34,7 +34,8 @@ data class VersionMetadata(val gitSha: String,
                            val commitMessage: String,
                            val tickets: List<String>,
                            val entries: List<String>,
-                           val day: String)
+                           val day: String,
+                           val artifactId: String)
 
 data class DiffLog(val mavenVersionA: String,
                    val mavenVersionB: String,

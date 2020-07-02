@@ -84,7 +84,8 @@ class GitManifestsGenerator {
                                 author = "$author ($authorName)".replace("\"", ""),
                                 entries = entries,
                                 tickets = tickets.distinct(),
-                                day = sdf.format(date))
+                                day = sdf.format(date),
+                                artifactId = generateGitManifestsRequest.artifactId)
                     }.filter { it.mavenVersion != "" }
                     .toList()
 
