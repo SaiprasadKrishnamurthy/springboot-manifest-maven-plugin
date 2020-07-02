@@ -33,18 +33,22 @@ class GitManifestsGenerator {
     }
 
     fun generateManifests(generateGitManifestsRequest: GenerateGitManifestsRequest) {
+        // Turn off paging.
+        "git config --global core.pager cat".runCommand(File(generateGitManifestsRequest.baseDir))
         val checkBranchCommand = "git branch"
         val currBranch = checkBranchCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                 .split("\n").filter { it.startsWith("*") }
                 .take(1)[0]
                 .replace("*", "")
                 .trim()
+        println(" One ")
 
         val shouldRun = generateGitManifestsRequest.executeOnBranches
                 .any { extractVariableNames(currBranch, Pattern.compile(it)).any { it.trim().isNotBlank() } }
         if (shouldRun) {
             val historyCommand = "git --no-pager log --oneline --decorate"
             val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
+            println(" Two ")
             val sdf = SimpleDateFormat("dd/MM/yyyy")
 
             var versionMetadata = logs
@@ -57,10 +61,12 @@ class GitManifestsGenerator {
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split("\n")
                                 .filter { it.isNotEmpty() }
+                        println("$sha Three ")
 
                         val details = "git --no-pager show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split(GIT_LOG_ENTRIES_DELIMITER)
+                        println("$sha Four ")
                         val author = details[0]
                         val timestamp = details[1].toLong()
                         val authorName = details[2]
@@ -176,10 +182,12 @@ class GitManifestsGenerator {
 
     private fun pomVersion(sha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): String {
         return try {
-            val pomContents = "git show $sha:pom.xml".runCommand(File(generateGitManifestsRequest.baseDir))
+            val pomContents = "git --no-pager show $sha:pom.xml".runCommand(File(generateGitManifestsRequest.baseDir))
+            println(" Five: ${pomContents?.length}")
             val xpFactory = XPathFactory.newInstance()
             val xPath = xpFactory.newXPath().compile("//*[local-name() = 'version']")
             val nodeList = xPath.evaluate(InputSource(StringReader(pomContents)), XPathConstants.NODESET) as NodeList
+            println(" Six: Nodelist length: ${nodeList.length}")
             if (nodeList.length > 0) {
                 var node = nodeList.item(0)
                 if (node.parentNode.localName == "parent") {
@@ -188,6 +196,7 @@ class GitManifestsGenerator {
                 node.textContent
             } else ""
         } catch (ex: Exception) {
+            ex.printStackTrace()
             ""
         }
     }
