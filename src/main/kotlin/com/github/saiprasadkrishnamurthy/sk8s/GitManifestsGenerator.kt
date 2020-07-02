@@ -60,6 +60,7 @@ class GitManifestsGenerator {
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split("\n")
                                 .filter { it.isNotEmpty() }
+                                .filter { it.contains("${generateGitManifestsRequest.artifactId}/") }
 
                         val details = "git --no-pager show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
@@ -87,6 +88,7 @@ class GitManifestsGenerator {
                                 day = sdf.format(date),
                                 artifactId = generateGitManifestsRequest.artifactId)
                     }.filter { it.mavenVersion != "" }
+                    .filter { it.entries.isNotEmpty() }
                     .toList()
 
             if (versionMetadata.isNotEmpty()) {
