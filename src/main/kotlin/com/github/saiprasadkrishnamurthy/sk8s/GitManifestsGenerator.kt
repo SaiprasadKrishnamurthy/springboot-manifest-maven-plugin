@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.reflectoring.diffparser.api.model.Diff
 import org.apache.commons.io.IOUtils
+import org.apache.commons.lang3.SystemUtils
 import org.w3c.dom.NodeList
 import org.xml.sax.InputSource
 import org.zeroturnaround.exec.ProcessExecutor
@@ -199,7 +200,8 @@ class GitManifestsGenerator {
 
     private fun pomVersion(sha: String, generateGitManifestsRequest: GenerateGitManifestsRequest): String {
         return try {
-            val pomContents = "git --no-pager show $sha:pom.xml".runCommand(File(generateGitManifestsRequest.baseDir))
+            val pom = if (SystemUtils.OS_NAME.toLowerCase().contains("windows")) "pom.xml" else "./pom.xml"
+            val pomContents = "git --no-pager show $sha:$pom".runCommand(File(generateGitManifestsRequest.baseDir))
             val xpFactory = XPathFactory.newInstance()
             val xPath = xpFactory.newXPath().compile("//*[local-name() = 'version']")
             val nodeList = xPath.evaluate(InputSource(StringReader(pomContents)), XPathConstants.NODESET) as NodeList
