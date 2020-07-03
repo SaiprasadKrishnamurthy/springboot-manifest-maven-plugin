@@ -131,9 +131,13 @@ class GitManifestsGenerator {
 
             val deps = generateGitManifestsRequest.dependencyArtifacts.map {
                 DependenciesInfo(parentArtifactId = generateGitManifestsRequest.artifactId,
-                        parentVersion = versionMetadata[0].mavenVersion,
+                        parentVersion = generateGitManifestsRequest.project.version,
                         dependencyArtifactId = it.artifactId,
-                        dependencyVersion = it.version)
+                        dependencyVersion = it.version,
+                        name = generateGitManifestsRequest.project.name,
+                        description = generateGitManifestsRequest.project.description,
+                        url = generateGitManifestsRequest.project.url
+                )
             }
 
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "dependencies.json"), jacksonObjectMapper().writeValueAsString(deps), Charset.defaultCharset())

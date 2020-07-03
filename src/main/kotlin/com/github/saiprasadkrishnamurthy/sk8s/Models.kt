@@ -51,4 +51,10 @@ data class DiffLog(val mavenVersionA: String,
                    val mavenVersionCanonicalNameA: String,
                    val mavenVersionCanonicalNameB: String)
 
-data class DependenciesInfo(val parentArtifactId: String, val parentVersion: String, val dependencyArtifactId: String, val dependencyVersion: String)
+data class DependenciesInfo(val parentArtifactId: String,
+                            val parentVersion: String,
+                            val dependencyArtifactId: String,
+                            val dependencyVersion: String,
+                            val name: String,
+                            val description: String,
+                            val url: String)
