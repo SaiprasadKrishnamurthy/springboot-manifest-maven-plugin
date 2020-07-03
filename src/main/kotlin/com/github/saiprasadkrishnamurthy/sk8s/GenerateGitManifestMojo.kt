@@ -47,7 +47,6 @@ class GenerateGitManifestsMojo : AbstractMojo() {
             log.warn(" GenerateGitManifestsMojo disabled ")
         } else {
             try {
-
                 val groupId = project.groupId
                 val artifactId = project.artifactId
                 val version = project.version
