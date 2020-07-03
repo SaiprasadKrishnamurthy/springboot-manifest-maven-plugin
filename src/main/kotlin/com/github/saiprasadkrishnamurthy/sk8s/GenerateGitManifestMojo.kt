@@ -60,9 +60,11 @@ class GenerateGitManifestsMojo : AbstractMojo() {
                         maxNoOfMavenVersionsForDiffsDump = maxNoOfMavenVersionsForDiffsDump.toInt(),
                         executeOnBranches = runOnBranchPatterns.split(","),
                         dependencyArtifacts = project.artifacts.toList(),
-                        transitiveDepsDatabaseDump = transitiveDepsDatabaseDump.toBoolean()
+                        transitiveDepsDatabaseDump = transitiveDepsDatabaseDump.toBoolean(),
+                        project = project
                 ))
             } catch (ex: Exception) {
+                ex.printStackTrace()
                 log.error(ex)
                 throw RuntimeException(ex)
             }

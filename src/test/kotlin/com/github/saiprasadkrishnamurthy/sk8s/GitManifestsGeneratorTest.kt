@@ -1,5 +1,6 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
+import org.apache.maven.project.MavenProject
 import org.junit.jupiter.api.BeforeAll
 import java.nio.file.Paths
 
@@ -16,7 +17,7 @@ class GitManifestsGeneratorTest {
     @org.junit.jupiter.api.Test
     fun generateManifests() {
         val req = GenerateGitManifestsRequest(artifactId = "event-relationships-enrichment-service",
-                outputDir = "target")
+                outputDir = "target", project = MavenProject())
         Paths.get(req.outputDir, req.artifactId).toFile().mkdirs()
         GitManifestsGenerator.newInstance().generateManifests(req)
 

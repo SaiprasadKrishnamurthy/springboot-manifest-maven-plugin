@@ -1,6 +1,7 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
 import org.apache.maven.artifact.Artifact
+import org.apache.maven.project.MavenProject
 
 /**
  * Various model objects.
@@ -25,7 +26,8 @@ data class GenerateGitManifestsRequest(val outputDir: String,
                                        val maxNoOfMavenVersionsForDiffsDump: Int = 0,
                                        val executeOnBranches: List<String> = listOf("master"),
                                        val dependencyArtifacts: List<Artifact> = emptyList(),
-                                       val transitiveDepsDatabaseDump: Boolean = false)
+                                       val transitiveDepsDatabaseDump: Boolean = false,
+                                       val project: MavenProject)
 
 data class VersionMetadata(val gitSha: String,
                            val mavenVersion: String,
@@ -49,3 +51,4 @@ data class DiffLog(val mavenVersionA: String,
                    val mavenVersionCanonicalNameA: String,
                    val mavenVersionCanonicalNameB: String)
 
+data class DependenciesInfo(val parentArtifactId: String, val parentVersion: String, val dependencyArtifactId: String, val dependencyVersion: String)

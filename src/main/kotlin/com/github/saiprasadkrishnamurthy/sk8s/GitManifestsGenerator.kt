@@ -50,17 +50,21 @@ class GitManifestsGenerator {
             val logs = historyCommand.runCommand(File(generateGitManifestsRequest.baseDir)).toString().split("\n")
             val sdf = SimpleDateFormat("dd/MM/yyyy")
 
+            val multimoduleProject = generateGitManifestsRequest.project.modules.isNotEmpty()
             var versionMetadata = logs
                     .asSequence()
                     .take(n = generateGitManifestsRequest.maxRevisions)
                     .filter { it.isNotEmpty() }
                     .map { it.split(" ")[0] }
                     .map { sha ->
-                        val entries = "git --no-pager show --pretty= --name-status $sha --first-parent"
+                        var entries = "git --no-pager show --pretty= --name-status $sha --first-parent"
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
                                 .split("\n")
                                 .filter { it.isNotEmpty() }
-                                .filter { it.contains("${generateGitManifestsRequest.artifactId}/") }
+
+                        if (multimoduleProject)
+                            entries = entries.filter { it.contains("${generateGitManifestsRequest.artifactId}/") }
+
 
                         val details = "git --no-pager show -s --pretty=\"%an$GIT_LOG_ENTRIES_DELIMITER%at|||||_|||||%cn|||||_|||||%s\" $sha"
                                 .runCommand(File(generateGitManifestsRequest.baseDir)).toString()
@@ -124,6 +128,15 @@ class GitManifestsGenerator {
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "index.html"), html, Charset.defaultCharset())
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "index.js"), js, Charset.defaultCharset())
             Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "styles.css"), css, Charset.defaultCharset())
+
+            val deps = generateGitManifestsRequest.dependencyArtifacts.map {
+                DependenciesInfo(parentArtifactId = generateGitManifestsRequest.artifactId,
+                        parentVersion = versionMetadata[0].mavenVersion,
+                        dependencyArtifactId = it.artifactId,
+                        dependencyVersion = it.version)
+            }
+
+            Files.writeString(Paths.get(generateGitManifestsRequest.outputDir, generateGitManifestsRequest.artifactId, "dependencies.json"), jacksonObjectMapper().writeValueAsString(deps), Charset.defaultCharset())
 
             if (generateGitManifestsRequest.transitiveDepsDatabaseDump) {
                 val releaseDB = generateGitManifestsRequest.outputDir + "/" + generateGitManifestsRequest.artifactId + ".db"
