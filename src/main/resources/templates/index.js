@@ -140,6 +140,7 @@ const filterByValue = (array, string) => {
 }
 
 const createCommitCharts = (jsonVal) => {
+    jsonVal = jsonVal.reverse();
     const groupedByMaven = groupBy(jsonVal, 'mavenVersion');
     Object.entries(groupedByMaven).forEach(([keyString, value]) => {
         const numberOfCommits = groupBy(value, 'day');
