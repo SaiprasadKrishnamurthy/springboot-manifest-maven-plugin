@@ -52,6 +52,7 @@ class GitManifestsGenerator {
             val sdf = SimpleDateFormat("dd/MM/yyyy")
 
             val multimoduleProject = generateGitManifestsRequest.project.modules.isNotEmpty()
+
             var versionMetadata = logs
                     .asSequence()
                     .take(n = generateGitManifestsRequest.maxRevisions)

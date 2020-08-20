@@ -107,7 +107,7 @@ class K8sManifestsGenerator {
         loadDefaultScopedProps(generateK8sManifestsRequest, propsContext)
         propsContext.props.forEach {
             val baseKey = toEnvironmentVariableFriendlyString(it.key.toString())
-            var baseValue = it.value.toString()
+            var baseValue = "\"${it.value}\"".replace("\n", "")
             val variableNamesInValues = extractVariableNames(baseValue, REGEX_EXTRACT_VARIABLE_NAMES_FROM_TEMPLATE)
             variableNamesInValues.forEach { v ->
                 baseValue = baseValue.replace("\${$v}", "\${${toEnvironmentVariableFriendlyString(v)}}")

@@ -8,6 +8,7 @@ import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.project.MavenProject
 import java.io.File
+import java.nio.file.Paths
 
 /**
  * An example Maven Mojo that generates Kubernetes config map files from a hierarchy of Spring boot properties files.
@@ -44,7 +45,7 @@ class GenerateK8sManifestsMojo : AbstractMojo() {
                 val artifactId = project.artifactId
                 val version = project.version
                 val dockerFullyQualifiedName = "$dockerImageNamespace/$artifactId"
-                File(outputDir).mkdirs()
+                Paths.get(outputDir, artifactId).toFile().mkdirs()
                 log.info(String.format(" Generating Kubernetes Deployment Files for:  %s:%s:%s", groupId, artifactId, version))
                 K8sManifestsGenerator.newInstance().generateManifests(GenerateK8sManifestsRequest(artifactId = artifactId,
                         dockerImageName = dockerFullyQualifiedName,
