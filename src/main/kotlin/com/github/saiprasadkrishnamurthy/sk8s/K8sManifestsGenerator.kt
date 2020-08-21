@@ -95,11 +95,8 @@ class K8sManifestsGenerator {
                 .map {
                     val nameWithoutExtension = it.nameWithoutExtension
                     val profile = if (nameWithoutExtension == "application") "_" else nameWithoutExtension.replace("application-", "")
-                    val yaml = Yaml()
-                    val inputStream = FileInputStream(it)
-                    val obj = yaml.load<Map<String, Any>>(inputStream)
-                    val flt = JsonFlattener.flattenAsMap(jacksonObjectMapper().writeValueAsString(obj)) as MutableMap<Any, Any>
-                    PropertiesContext(profile = profile, file = it.path, props = flt)
+                    val ymlToProps = YamlConverter.ymlToProps(it.absolutePath)
+                    PropertiesContext(profile = profile, file = it.path, props = ymlToProps)
                 }.toList()
     }
 
