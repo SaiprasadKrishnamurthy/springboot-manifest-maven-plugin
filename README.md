@@ -9,7 +9,7 @@
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>2.8</version>
+    <version>2.9</version>
     <executions>
         <execution>
             <id>generate-git-manifests</id>
@@ -180,7 +180,7 @@ The above example would produce 5 pairs of Kubernetes manifest files (each pair 
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>2.8</version>
+    <version>2.9</version>
     <executions>
         <execution>
             <id>generate-k8s-manifests</id>
