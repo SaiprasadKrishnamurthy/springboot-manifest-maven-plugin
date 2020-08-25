@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manifests</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+<nav class="light-blue darken-4" role="navigation">
+    <div class="nav-wrapper container">
+        <a id="logo-container" href="#" class="brand-logo">{{artifactId}}({{version}})</a>
+    </div>
+</nav>
+<br/>
+<div class="row">
+    <div id="home" class="col s12">
+        <div class="container">
+            <div class="section">
+                <div class="row">
+                    <b>
+                        <span>Total Properties: {{ totalProperties }}</span> <br/>
+                        <span>Total Documented Properties: {{ totalDocumentedProperties }}</span><br/>
+                        <span>Total Undocumented Properties: {{ totalUndocumentedProperties }}</span><br/>
+                        <span style="background-color:red">% of properties undocumented: {{ percentage }}%</span><br/>
+                    </b>
+                    <br/>
+                    <hr/>
+                    <br/>
+                    <div class="col s12 m12">
+                        <button class="btn" id="export">Export to CSV</button>
+                    </div>
+                    <div class="col s12 m12">
+                        <table id="table">
+                            {% autoescape false %}
+                            <thead>
+                            <tr style="background-color:#039BE9;color: #fff">
+                                <th>PROPERTY</th>
+                                <th>DESCRIPTION</th>
+                                <th>DATA TYPE</th>
+                                <th>ENUMERATION OF VALUES</th>
+                                <th>DEFAULT VALUE</th>
+                                <th>TAGS</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for p in props %}
+                            {% if p.description is empty %}
+                            <tr style="background-color:#F199AE">
+                                {% else %}
+                            <tr>
+                                {% endif %}
+                                <td>
+                                    {{ p.key }}
+                                </td>
+                                <td>
+                                    {{ p.description }}
+                                </td>
+                                <td>
+                                    {{ p.dataType }}
+                                </td>
+                                <td>
+                                    {{ p.values }}
+                                </td>
+                                <td>
+                                    {% if p.defaultValue is empty %}
+                                    {{ p.defaultValue }}
+                                    {% else %}
+                                    {{ p.defaultValue }} <i> &nbsp; (default)</i>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ p.tags }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                            {% endautoescape %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+<script>
+/**
+ * Takes a HTML table and saves its data as a csv
+ *
+ * copyright (c) 2013 Scott-David Jones
+ */
+(function($){
+  $.fn.tableToCsv = function( options ){
+    var t = $(this);
+    if (! t.is('table')) {
+      throw "selector element is not a table..";
+    }
+
+    var settings = $.extend({
+      seperator: ',',
+      fileName: t.attr('id'),
+      outputheaders: true,
+      extension: 'csv'
+    }, options);
+
+    var quote = function(string) {
+      return '"' + string.trim().replace('"', '""') + '"';
+    }
+
+    var csvData = [];
+
+    //get headers
+    if (settings.outputheaders === true) {
+      var headers = [];
+      t.find('thead tr').each(function(index, element){
+        var row = $(this);
+        row.find('th').each(function(i,e){
+          var cell = $(this);
+          headers.push(quote(cell.text()));
+        });
+      });
+      csvData.push(headers);
+    }
+
+    //get the main body of data
+    t.find('tbody tr').each(function(i,e){
+      var rowData = [];
+      var row = $(this);
+      row.find('td').each(function(i, e){
+        var cell = $(this);
+        var text = cell.text();
+        //if number add else encapsulate with quotes
+        if ( !isNaN(parseFloat(text)) && isFinite(text) ) {
+          rowData.push(text);
+        }
+        else {
+          rowData.push(quote(text));
+        }
+
+      });
+      csvData.push(rowData);
+    });
+
+    var csvString = '';
+    for (var c in csvData) {
+      var current = csvData[c];
+      csvString += current.join(settings.seperator)+"\r\n";
+    }
+
+    // Ludovic Feltz
+    // https://stackoverflow.com/questions/3665115/create-a-file-in-memory-for-user-to-download-not-through-server
+    var save = function(filename, data) {
+      var blob = new Blob([data], {type: 'text/csv'});
+      if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+      }
+      else {
+        var elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;
+        document.body.appendChild(elem);
+        elem.click();
+        document.body.removeChild(elem);
+      }
+    }
+
+    save(settings.fileName + "." + settings.extension, csvString)
+  }
+}(jQuery));
+
+$('#export').on('click',function(){
+  $('#table').tableToCsv();
+})
+
+
+
+
+</script>
+
+</html>

@@ -58,3 +58,28 @@ data class DependenciesInfo(val parentArtifactId: String,
                             val name: String,
                             val description: String,
                             val url: String)
+
+data class YmlPropertyInfo(val key: String,
+                           val value: String? = null,
+                           val level: Int,
+                           val description: String? = null,
+                           val dataType: String? = null,
+                           val values: String? = null,
+                           val defaultValue: String? = null,
+                           val tags: String? = null,
+                           val sequence: Int = 0,
+                           val profile: String = "default")
+
+data class GeneratePropsDocRequest(val outputDir: String,
+                                   val artifactId: String,
+                                   val version: String,
+                                   val baseDir: String = System.getProperty("user.dir"))
+
+data class PropDescriptor(val key: String,
+                          val value: String? = null,
+                          val description: String? = null,
+                          val dataType: String? = null,
+                          val values: String? = null,
+                          val defaultValue: String? = null,
+                          val tags: String? = null,
+                          val profile: String = "default")

@@ -7,7 +7,7 @@
 
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>2.9</version>
+    <version>2.10</version>
     <packaging>maven-plugin</packaging>
 
     <url>https://github.com/SaiprasadKrishnamurthy/springboot-manifest-maven-plugin</url>
@@ -168,8 +168,18 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.5</version>
         </dependency>
-
-
+        <!-- https://mvnrepository.com/artifact/com.googlecode.cqengine/cqengine -->
+        <dependency>
+            <groupId>com.googlecode.cqengine</groupId>
+            <artifactId>cqengine</artifactId>
+            <version>3.5.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.pebbletemplates/pebble -->
+        <dependency>
+            <groupId>io.pebbletemplates</groupId>
+            <artifactId>pebble</artifactId>
+            <version>3.1.4</version>
+        </dependency>
     </dependencies>
     <build>
         <pluginManagement>
@@ -263,9 +273,11 @@
                             <goal>generate-git-manifests</goal>
                         </goals>
                         <configuration>
-                            <ticketPatterns>SPR-[0-9]+</ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system -->
+                            <ticketPatterns>SPR-[0-9]+
+                            </ticketPatterns> <!-- Optional: A comma separated list of Regex of the issue ticket ids in your issue tracking system -->
                             <skip>false</skip> <!-- Optional default false-->
-                            <outputDir>target/classes/manifests/git</outputDir> <!-- Optional, defaults to target/manifests/git -->
+                            <outputDir>target/classes/manifests/git
+                            </outputDir> <!-- Optional, defaults to target/manifests/git -->
                             <maxNoOfMavenVersionsForDiffsDump>3</maxNoOfMavenVersionsForDiffsDump>
                             <transitiveDepsDatabaseDump>true</transitiveDepsDatabaseDump>
                         </configuration>
