@@ -200,6 +200,26 @@ The above example would produce 5 pairs of Kubernetes manifest files (each pair 
 ```
 
 ## Config Docs generation:
+### YML
+Annotate your properties using YML comments like this (next to the property).
+```
+spring:
+  joo:
+    ss: 1
+  cache:
+    foo:
+      bar:
+        koo:
+          soo: "sss"
+    cache-names: apiKey #doc(description:this is foo|type:string|values:a,b,c|default:1|tags:a,b,c)
+    caffeine.spec: maximumSize=500,expireAfterAccess=600s #doc(description:this is bar|type:string|values:a,b,c|default:1)
+```
+**"#doc(description:this is foo|type:string|values:a,b,c|default:1|tags:a,b,c)"**
+* It must start with #doc(
+* You have description, type, values, default, tags to be supplied in the key:value format.
+* Every key-value pair must be pipe (|) separated.
+
+Use the plugin like this:
 ```
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
