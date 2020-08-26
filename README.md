@@ -9,7 +9,7 @@
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>2.10</version>
+    <version>2.11</version>
     <executions>
         <execution>
             <id>generate-git-manifests</id>
@@ -180,7 +180,7 @@ The above example would produce 5 pairs of Kubernetes manifest files (each pair 
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>2.10</version>
+    <version>2.11</version>
     <executions>
         <execution>
             <id>generate-k8s-manifests</id>
@@ -189,8 +189,7 @@ The above example would produce 5 pairs of Kubernetes manifest files (each pair 
             </goals>
         <configuration>
             <dockerImageNamespace>saiprasadkrishnamurthy</dockerImageNamespace>
-            <deploymentYmlTemplateFile>deployment/deployment.yml</deploymentYmlTemplateFile>
-            <configMapYmlTemplateFile>deployment/configMap.yml</configMapYmlTemplateFile>
+            <deploymentYmlTemplateFilesDir>deployment</deploymentYmlTemplateFilesDir>
             <skip>false</skip> <!-- Optional default false -->
             <outputDir>target/manifests/k8s</outputDir> <!-- Optional, defaults to target/manifests/k8s -->
         </configuration>
@@ -224,7 +223,7 @@ Use the plugin like this:
 <plugin>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>springboot-manifest-maven-plugin</artifactId>
-    <version>2.10</version>
+    <version>2.11</version>
     <executions>
         <execution>
             <id>generate-config-docs</id>

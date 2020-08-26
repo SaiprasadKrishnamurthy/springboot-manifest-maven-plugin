@@ -18,7 +18,7 @@ class K8sManifestsGeneratorTest {
         val req = GenerateK8sManifestsRequest(artifactId = "demo-service",
                 version = "1.0-SNAPSHOT",
                 dockerImageName = "saiprasadkrishnamurthy/demo-service",
-                deploymentYmlTemplateFile = "deployment/service-deployment-template.yml",
+                deploymentYmlTemplateFilesDir = "deployment",
                 configMapYmlTemplateFile = "deployment/configmap-template.yml",
                 outputDir = "target")
         Paths.get(req.outputDir, req.artifactId).toFile().mkdirs()

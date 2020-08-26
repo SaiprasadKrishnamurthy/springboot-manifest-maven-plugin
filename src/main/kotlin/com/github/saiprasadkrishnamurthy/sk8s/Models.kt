@@ -13,10 +13,10 @@ data class PropertiesContext(val profile: String, val props: MutableMap<Any, Any
 data class GenerateK8sManifestsRequest(val artifactId: String,
                                        val version: String,
                                        val dockerImageName: String,
-                                       val deploymentYmlTemplateFile: String,
                                        val configMapYmlTemplateFile: String,
                                        val outputDir: String,
-                                       val baseDir: String = System.getProperty("user.dir"))
+                                       val baseDir: String = System.getProperty("user.dir"),
+                                       val deploymentYmlTemplateFilesDir: String)
 
 data class GenerateGitManifestsRequest(val outputDir: String,
                                        val artifactId: String,

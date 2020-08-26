@@ -1,8 +1,5 @@
 package com.github.saiprasadkrishnamurthy.sk8s
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.github.wnameless.json.flattener.JsonFlattener
-import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.FileInputStream
 import java.nio.charset.Charset
@@ -54,23 +51,33 @@ class K8sManifestsGenerator {
                 }
 
         propsContexts.forEach { pc ->
-            var deploymentTemplate = Paths.get(generateK8sManifestsRequest.baseDir, generateK8sManifestsRequest.deploymentYmlTemplateFile).toFile().readText(Charset.defaultCharset())
             var configMapTemplate = Paths.get(generateK8sManifestsRequest.baseDir, generateK8sManifestsRequest.configMapYmlTemplateFile).toFile().readText(Charset.defaultCharset())
-            pc.props.forEach { (k, v) ->
-                deploymentTemplate = deploymentTemplate.replace("\${${k.toString()}}", v.toString())
-            }
-            pc.normalisedProps.forEach { (k, v) ->
-                deploymentTemplate = deploymentTemplate.replace("\${${k.toString()}}", v.toString())
-            }
             val profile = if (pc.profile == "_") "" else "_${pc.profile}"
-            Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "deployment$profile.yml"), deploymentTemplate, Charset.defaultCharset())
-
             val properties = pc.normalisedProps.map {
                 "  ${it.key}: ${it.value}"
             }.joinToString("\n")
             configMapTemplate = configMapTemplate.replace("\${properties}", properties)
             configMapTemplate = configMapTemplate.replace("\${configMapTemplateName}", pc.normalisedProps["configMapTemplateName"].toString())
             Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "configMap$profile.yml"), configMapTemplate, Charset.defaultCharset())
+        }
+
+        propsContexts.forEach { pc ->
+            Files.list(Paths.get(generateK8sManifestsRequest.deploymentYmlTemplateFilesDir))
+                    .filter { !it.toFile().name.contains("configmap") }
+                    .filter { it.toFile().isFile }
+                    .filter { it.toFile().extension == "yml" || it.toFile().extension == "yaml" }
+                    .forEach {
+                        var deploymentTemplate = Paths.get(generateK8sManifestsRequest.baseDir, it.toString()).toFile().readText(Charset.defaultCharset())
+                        pc.props.forEach { (k, v) ->
+                            deploymentTemplate = deploymentTemplate.replace("\${${k.toString()}}", v.toString())
+                        }
+                        pc.normalisedProps.forEach { (k, v) ->
+                            deploymentTemplate = deploymentTemplate.replace("\${${k.toString()}}", v.toString())
+                        }
+                        val profile = if (pc.profile == "_") "" else "_${pc.profile}"
+                        val fileName = it.toFile().nameWithoutExtension.replace("-template", "").replace("template", "").replace("Template", "")
+                        Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "$fileName$profile.yml"), deploymentTemplate, Charset.defaultCharset())
+                    }
         }
     }
 

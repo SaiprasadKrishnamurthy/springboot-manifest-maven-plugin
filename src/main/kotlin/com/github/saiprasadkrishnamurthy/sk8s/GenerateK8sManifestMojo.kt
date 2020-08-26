@@ -7,7 +7,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase
 import org.apache.maven.plugins.annotations.Mojo
 import org.apache.maven.plugins.annotations.Parameter
 import org.apache.maven.project.MavenProject
-import java.io.File
+import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
@@ -26,11 +26,8 @@ class GenerateK8sManifestsMojo : AbstractMojo() {
     @Parameter(property = "skip")
     private var skip: Boolean = false
 
-    @Parameter(property = "deploymentYmlTemplateFile")
-    private lateinit var deploymentYmlTemplateFile: String
-
-    @Parameter(property = "configMapYmlTemplateFile")
-    private lateinit var configMapYmlTemplateFile: String
+    @Parameter(property = "deploymentYmlTemplateFilesDir")
+    private lateinit var deploymentYmlTemplateFilesDir: String
 
     @Parameter(property = "outputDir", defaultValue = "target/manifests/k8s")
     private lateinit var outputDir: String
@@ -47,12 +44,13 @@ class GenerateK8sManifestsMojo : AbstractMojo() {
                 val dockerFullyQualifiedName = "$dockerImageNamespace/$artifactId"
                 Paths.get(outputDir, artifactId).toFile().mkdirs()
                 log.info(String.format(" Generating Kubernetes Deployment Files for:  %s:%s:%s", groupId, artifactId, version))
+                val configMapFileTemplate = Files.list(Paths.get(deploymentYmlTemplateFilesDir)).filter { it.toFile().name.toLowerCase().contains("configmap") }.findFirst().get()
                 K8sManifestsGenerator.newInstance().generateManifests(GenerateK8sManifestsRequest(artifactId = artifactId,
                         dockerImageName = dockerFullyQualifiedName,
                         version = version,
-                        configMapYmlTemplateFile = configMapYmlTemplateFile,
-                        deploymentYmlTemplateFile = deploymentYmlTemplateFile,
-                        outputDir = outputDir))
+                        configMapYmlTemplateFile = configMapFileTemplate.toString(),
+                        outputDir = outputDir,
+                        deploymentYmlTemplateFilesDir = deploymentYmlTemplateFilesDir))
             } catch (ex: Exception) {
                 log.error(ex)
                 throw RuntimeException(ex)
