@@ -51,13 +51,14 @@ class K8sManifestsGenerator {
                 }
 
         propsContexts.forEach { pc ->
-            var configMapTemplate = Paths.get(generateK8sManifestsRequest.baseDir, generateK8sManifestsRequest.configMapYmlTemplateFile).toFile().readText(Charset.defaultCharset())
+            var configMapTemplate = File(generateK8sManifestsRequest.configMapYmlTemplateFile).readText(Charset.defaultCharset())
             val profile = if (pc.profile == "_") "" else "_${pc.profile}"
             val properties = pc.normalisedProps.map {
                 "  ${it.key}: ${it.value}"
             }.joinToString("\n")
             configMapTemplate = configMapTemplate.replace("\${properties}", properties)
             configMapTemplate = configMapTemplate.replace("\${configMapTemplateName}", pc.normalisedProps["configMapTemplateName"].toString())
+            println(" ************ " + Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "configMap$profile.yml").toString())
             Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "configMap$profile.yml"), configMapTemplate, Charset.defaultCharset())
         }
 
@@ -67,7 +68,7 @@ class K8sManifestsGenerator {
                     .filter { it.toFile().isFile }
                     .filter { it.toFile().extension == "yml" || it.toFile().extension == "yaml" }
                     .forEach {
-                        var deploymentTemplate = Paths.get(generateK8sManifestsRequest.baseDir, it.toString()).toFile().readText(Charset.defaultCharset())
+                        var deploymentTemplate = it.toFile().readText(Charset.defaultCharset())
                         pc.props.forEach { (k, v) ->
                             deploymentTemplate = deploymentTemplate.replace("\${${k.toString()}}", v.toString())
                         }
