@@ -58,7 +58,6 @@ class K8sManifestsGenerator {
             }.joinToString("\n")
             configMapTemplate = configMapTemplate.replace("\${properties}", properties)
             configMapTemplate = configMapTemplate.replace("\${configMapTemplateName}", pc.normalisedProps["configMapTemplateName"].toString())
-            println(" ************ " + Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "configMap$profile.yml").toString())
             Files.writeString(Paths.get(generateK8sManifestsRequest.outputDir, generateK8sManifestsRequest.artifactId, "configMap$profile.yml"), configMapTemplate, Charset.defaultCharset())
         }
 

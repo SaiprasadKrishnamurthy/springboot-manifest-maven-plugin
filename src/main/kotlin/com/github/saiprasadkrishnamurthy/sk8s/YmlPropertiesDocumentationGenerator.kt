@@ -70,8 +70,8 @@ class YmlPropertiesDocumentationGenerator {
                 }.map { it.value }
                 .sum()
         context["totalUndocumentedProperties"] = groupedByKey.size - context["totalDocumentedProperties"] as Int
-
-        val percentage = ((context["totalUndocumentedProperties"] as Int).toDouble()) / ((context["totalProperties"] as Int).toDouble()) * 100
+        val p = (((context["totalUndocumentedProperties"] as Int).toDouble()) / ((context["totalProperties"] as Int).toDouble())) * 100
+        val percentage = String.format("%.1f", p)
         context["percentage"] = percentage
 
         val writer = StringWriter()
@@ -109,38 +109,40 @@ class YmlPropertiesDocumentationGenerator {
                 .filter { it.name.endsWith("yml") || it.name.endsWith("yaml") }
                 .map { file ->
                     val lines = file.readLines(Charset.defaultCharset())
-                    lines.forEach { line ->
-                        val level = line.indexOf(line.trim())
-                        val split = line.split(":")
-                        val key = split[0].trim()
-                        val value = if (split.size > 1) split[1].trim() else null
+                    lines
+                            .filter { it.isNotBlank() }
+                            .forEach { line ->
+                                val level = line.indexOf(line.trim())
+                                val split = line.split(":")
+                                val key = split[0].trim()
+                                val value = if (split.size > 1) split[1].trim() else null
 
-                        val profile = if (file.nameWithoutExtension == "application") "default" else file.nameWithoutExtension.replace("application-", "")
-                        if (line.contains("#doc")) {
-                            val prop = line.substring(line.lastIndexOf("#doc"), line.length - 1)
-                            val contents = prop.substring(5, prop.length)
-                            val map = contents.split("|").associate {
-                                val (left, right) = it.split(":")
-                                left to right.toString()
+                                val profile = if (file.nameWithoutExtension == "application") "default" else file.nameWithoutExtension.replace("application-", "")
+                                if (line.contains("#doc")) {
+                                    val prop = line.substring(line.lastIndexOf("#doc"), line.length - 1)
+                                    val contents = prop.substring(5, prop.length)
+                                    val map = contents.split("|").associate {
+                                        val (left, right) = it.split(":")
+                                        left to right.toString()
+                                    }
+                                    propInfos.add(YmlPropertyInfo(key = key,
+                                            value = if (value != null) if (value.contains("#doc")) value.substringBefore("#doc(").trim() else value.trim() else null,
+                                            level = level,
+                                            description = map["description"],
+                                            dataType = map["type"],
+                                            values = map["values"],
+                                            defaultValue = map["default"],
+                                            tags = map["tags"],
+                                            sequence = ++seq,
+                                            profile = profile))
+                                } else {
+                                    propInfos.add(YmlPropertyInfo(key = key,
+                                            value = if (value != null) if (value.contains("#doc")) value.substringBefore("#doc(") else value.trim() else null,
+                                            level = level,
+                                            sequence = ++seq,
+                                            profile = profile))
+                                }
                             }
-                            propInfos.add(YmlPropertyInfo(key = key,
-                                    value = if (value != null) if (value.contains("#doc")) value.substringBefore("#doc(").trim() else value.trim() else null,
-                                    level = level,
-                                    description = map["description"],
-                                    dataType = map["type"],
-                                    values = map["values"],
-                                    defaultValue = map["default"],
-                                    tags = map["tags"],
-                                    sequence = ++seq,
-                                    profile = profile))
-                        } else {
-                            propInfos.add(YmlPropertyInfo(key = key,
-                                    value = if (value != null) if (value.contains("#doc")) value.substringBefore("#doc(") else value.trim() else null,
-                                    level = level,
-                                    sequence = ++seq,
-                                    profile = profile))
-                        }
-                    }
                 }
     }
 }
