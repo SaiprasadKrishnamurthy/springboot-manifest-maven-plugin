@@ -40,6 +40,7 @@ class YmlPropertiesDocumentationGenerator {
                     profile = ymlPropertyInfo.profile)
         }
         val groupedByKey = propDesc.groupBy { it.key }
+
         val vals = groupedByKey.mapValues { v ->
             val pd = v.value
             pd.reduce { a, b ->
@@ -47,8 +48,8 @@ class YmlPropertiesDocumentationGenerator {
                         values = b.values + " " + a.values,
                         description = b.description + " " + a.description,
                         defaultValue = b.defaultValue + " " + a.defaultValue,
-                        dataType = b.values + " " + a.dataType,
-                        tags = b.values + " " + a.tags)
+                        dataType = b.dataType + " " + a.dataType,
+                        tags = b.tags + " " + a.tags)
             }
         }
 
